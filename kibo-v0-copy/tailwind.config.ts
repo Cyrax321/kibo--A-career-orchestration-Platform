@@ -111,12 +111,12 @@ export default {
           "100%": { opacity: "1", transform: "scale(1)" },
         },
         "text-reveal": {
-          "0%": { 
+          "0%": {
             opacity: "0",
             transform: "translateY(100%)",
             clipPath: "inset(100% 0 0 0)",
           },
-          "100%": { 
+          "100%": {
             opacity: "1",
             transform: "translateY(0)",
             clipPath: "inset(0 0 0 0)",
@@ -127,10 +127,10 @@ export default {
           "50%": { transform: "translateY(-10px)" },
         },
         "pulse-glow": {
-          "0%, 100%": { 
+          "0%, 100%": {
             boxShadow: "0 0 20px -5px hsl(262.1 83.3% 57.8% / 0.4)",
           },
-          "50%": { 
+          "50%": {
             boxShadow: "0 0 30px -5px hsl(262.1 83.3% 57.8% / 0.6)",
           },
         },

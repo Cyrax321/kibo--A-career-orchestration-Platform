@@ -12,8 +12,8 @@ interface NavbarProps {
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Features", href: "#features" },
-  { 
-    label: "Resources", 
+  {
+    label: "Resources",
     href: "#",
     dropdown: [
       { label: "CS Arena", href: "/arena" },
@@ -56,8 +56,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled 
-          ? "bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" 
+        isScrolled
+          ? "bg-white/90 backdrop-blur-md border-b border-white/20 shadow-sm"
           : "bg-transparent",
         className
       )}
@@ -66,10 +66,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
         <nav className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <motion.img 
-              src={kiboLogo} 
-              alt="Kibo" 
-              className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20 transition-transform group-hover:scale-105" 
+            <motion.img
+              src={kiboLogo}
+              alt="Kibo"
+              className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20 transition-transform group-hover:scale-105"
               whileHover={{ rotate: [0, -5, 5, 0] }}
               transition={{ duration: 0.4 }}
             />
@@ -81,8 +81,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <div 
-                key={link.label} 
+              <div
+                key={link.label}
                 className="relative"
                 onMouseEnter={() => link.dropdown && setActiveDropdown(link.label)}
                 onMouseLeave={() => setActiveDropdown(null)}
@@ -101,7 +101,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                         activeDropdown === link.label && "rotate-180"
                       )} />
                     </button>
-                    
+
                     {/* Dropdown */}
                     {activeDropdown === link.label && (
                       <motion.div
@@ -209,7 +209,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
                 )}
               </div>
             ))}
-            
+
             <div className="pt-4 border-t border-border space-y-2">
               <Link
                 to="/login"

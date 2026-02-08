@@ -54,17 +54,17 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ 
-        duration: 0.5, 
-        delay, 
-        ease: [0.25, 0.1, 0.25, 1] 
+      transition={{
+        duration: 0.5,
+        delay,
+        ease: [0.25, 0.1, 0.25, 1]
       }}
-      whileHover={{ 
-        y: -4, 
-        transition: { duration: 0.25, ease: "easeOut" } 
+      whileHover={{
+        y: -4,
+        transition: { duration: 0.25, ease: "easeOut" }
       }}
       className={cn(
-        "group relative rounded-3xl bg-gradient-to-br from-white/90 to-white/50 backdrop-blur-xl border border-white/50 cursor-pointer overflow-hidden transition-all duration-400 hover:shadow-xl hover:border-white/60",
+        "group relative rounded-3xl bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-sm border border-white/50 cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-white/60 will-change-transform",
         isLarge ? "p-8 sm:p-10" : "p-6 sm:p-8",
         accent.shadow,
         className
@@ -75,14 +75,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         "absolute inset-0 bg-gradient-to-br to-transparent opacity-60",
         accent.gradient
       )} />
-      
+
       {/* Ambient glow for large cards */}
       {isLarge && (
         <div className={cn(
           "absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full blur-3xl transition-colors duration-600 pointer-events-none",
           accent.glow,
-          category === "Core Feature" 
-            ? "top-0 right-0 -translate-y-1/3 translate-x-1/3" 
+          category === "Core Feature"
+            ? "top-0 right-0 -translate-y-1/3 translate-x-1/3"
             : "bottom-0 left-0 translate-y-1/3 -translate-x-1/3"
         )} />
       )}

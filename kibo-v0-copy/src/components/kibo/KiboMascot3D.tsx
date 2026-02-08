@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Float, Environment } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
@@ -43,6 +43,8 @@ const KiboGLBModel: React.FC<KiboModelProps> = ({ mousePosition }) => {
   const initialLookX = -0.25;
   const initialLookY = 0;
 
+  // No manual invalidation needed with frameloop="always"
+
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
@@ -52,17 +54,19 @@ const KiboGLBModel: React.FC<KiboModelProps> = ({ mousePosition }) => {
       const blendedY = hasMouseMoved ? mousePosition.y : initialLookY;
 
       const targetRotationY = blendedX * 0.3;
-      const targetRotationX = blendedY * 0.15; // Removed minus sign to invert
+      const targetRotationX = blendedY * 0.15;
+
+      const dampFactor = 0.1; // Smoother damping
 
       groupRef.current.rotation.y = THREE.MathUtils.lerp(
         groupRef.current.rotation.y,
         targetRotationY,
-        0.05
+        dampFactor
       );
       groupRef.current.rotation.x = THREE.MathUtils.lerp(
         groupRef.current.rotation.x,
         targetRotationX,
-        0.05
+        dampFactor
       );
 
       // Breathing animation
@@ -117,16 +121,13 @@ const KiboMascot3D: React.FC<{ className?: string }> = ({ className }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  // Lazy load when visible
+  // Track visibility dynamically for performance
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
+        setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.1, rootMargin: "50px" }
+      { threshold: 0.1, rootMargin: "100px" } // Pre-load slightly before view
     );
 
     if (containerRef.current) {
@@ -140,9 +141,12 @@ const KiboMascot3D: React.FC<{ className?: string }> = ({ className }) => {
   React.useEffect(() => {
     let rafId: number;
     let lastUpdate = 0;
-    const throttleMs = 32; // ~30fps for mouse tracking
+    const throttleMs = 16; // 60fps tracking for butter smooth feel
 
     const handleMouseMove = (event: MouseEvent) => {
+      // Only track if visible to save CPU
+      if (!isVisible) return;
+
       const now = Date.now();
       if (now - lastUpdate < throttleMs) return;
       lastUpdate = now;
@@ -154,6 +158,7 @@ const KiboMascot3D: React.FC<{ className?: string }> = ({ className }) => {
           const centerX = rect.left + rect.width / 2;
           const centerY = rect.top + rect.height / 2;
 
+          // Smoother interpolation target
           const x = (event.clientX - centerX) / (rect.width / 2);
           const y = (event.clientY - centerY) / (rect.height / 2);
 
@@ -170,29 +175,29 @@ const KiboMascot3D: React.FC<{ className?: string }> = ({ className }) => {
       window.removeEventListener("mousemove", handleMouseMove);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isVisible]); // Re-attach when visibility changes
 
   return (
-    <div ref={containerRef} className={className}>
-      {isVisible && (
-        <Canvas
-          camera={{ position: [0, 0, 3.5], fov: 45 }}
-          style={{ background: "transparent" }}
-          dpr={[1, 2]} // Higher quality rendering
-          gl={{
-            antialias: true, // Smooth edges
-            alpha: true,
-            powerPreference: "high-performance",
-            stencil: false,
-            depth: true
-          }}
-          performance={{ min: 0.5 }}
-        >
-          <React.Suspense fallback={null}>
-            <KiboScene mousePosition={mousePosition} />
-          </React.Suspense>
-        </Canvas>
-      )}
+    <div ref={containerRef} className={className} style={{ minHeight: '400px' }}>
+      <Canvas
+        camera={{ position: [0, 0, 3.5], fov: 45 }}
+        style={{ background: "transparent" }}
+        dpr={[1, 1.5]} // Cap at 1.5 for performance balance
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+          stencil: false,
+          depth: true
+        }}
+        // "never" loop completely pauses the internal loop, saving CPU/GPU
+        // "always" renders at screen refresh rate
+        frameloop={isVisible ? "always" : "never"}
+      >
+        <React.Suspense fallback={null}>
+          <KiboScene mousePosition={mousePosition} />
+        </React.Suspense>
+      </Canvas>
     </div>
   );
 };

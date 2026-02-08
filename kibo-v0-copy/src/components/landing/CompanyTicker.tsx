@@ -57,7 +57,7 @@ const CompanyTicker: React.FC<CompanyTickerProps> = ({ className }) => {
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-40 bg-gradient-to-l from-background via-background/80 to-transparent" />
 
       {/* Row 1 - Scrolling left */}
-      <div className="mb-4 flex animate-scroll">
+      <div className="mb-4 flex animate-scroll will-change-transform">
         {[...companiesRow1, ...companiesRow1, ...companiesRow1, ...companiesRow1].map((company, index) => (
           <motion.div
             key={`row1-${company.name}-${index}`}
@@ -65,9 +65,9 @@ const CompanyTicker: React.FC<CompanyTickerProps> = ({ className }) => {
             whileTap={{ scale: 0.98 }}
             className="mx-3 flex min-w-fit items-center gap-3 rounded-xl bg-white/70 backdrop-blur-sm border border-white/30 px-6 py-3.5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:border-primary/20 cursor-pointer"
           >
-            <img 
-              src={company.logo} 
-              alt={`${company.name} logo`} 
+            <img
+              src={company.logo}
+              alt={`${company.name} logo`}
               className="h-6 w-6 object-contain opacity-80"
             />
             <span className="text-sm font-medium text-foreground/80">
@@ -78,7 +78,7 @@ const CompanyTicker: React.FC<CompanyTickerProps> = ({ className }) => {
       </div>
 
       {/* Row 2 - Scrolling right (reverse) */}
-      <div className="flex animate-scroll-reverse">
+      <div className="flex animate-scroll-reverse will-change-transform">
         {[...companiesRow2, ...companiesRow2, ...companiesRow2, ...companiesRow2].map((company, index) => (
           <motion.div
             key={`row2-${company.name}-${index}`}
@@ -86,9 +86,9 @@ const CompanyTicker: React.FC<CompanyTickerProps> = ({ className }) => {
             whileTap={{ scale: 0.98 }}
             className="mx-3 flex min-w-fit items-center gap-3 rounded-xl bg-white/70 backdrop-blur-sm border border-white/30 px-6 py-3.5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:border-primary/20 cursor-pointer"
           >
-            <img 
-              src={company.logo} 
-              alt={`${company.name} logo`} 
+            <img
+              src={company.logo}
+              alt={`${company.name} logo`}
               className="h-6 w-6 object-contain opacity-80"
             />
             <span className="text-sm font-medium text-foreground/80">

@@ -165,8 +165,8 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ classN
       <div className="relative mb-6">
         <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
-        
-        <div className="flex gap-6 animate-testimonial-scroll">
+
+        <div className="flex gap-6 animate-testimonial-scroll will-change-transform">
           {duplicatedRow1.map((testimonial, index) => (
             <TestimonialCard key={`row1-${index}`} testimonial={testimonial} />
           ))}
@@ -177,8 +177,8 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ classN
       <div className="relative">
         <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-10" />
-        
-        <div className="flex gap-6 animate-testimonial-scroll-reverse">
+
+        <div className="flex gap-6 animate-testimonial-scroll-reverse will-change-transform">
           {duplicatedRow2.map((testimonial, index) => (
             <TestimonialCard key={`row2-${index}`} testimonial={testimonial} />
           ))}
@@ -194,7 +194,7 @@ interface TestimonialCardProps {
 
 const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial }) => {
   return (
-    <div className="flex-shrink-0 w-[350px] p-6 bg-white/40 backdrop-blur-xl border border-white/20 rounded-2xl shadow-sm">
+    <div className="flex-shrink-0 w-[350px] p-6 bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl shadow-sm transition-all hover:bg-white/80">
       <div className="flex items-center gap-1 mb-4">
         {Array.from({ length: testimonial.rating }).map((_, i) => (
           <Star key={i} className="w-4 h-4 fill-warning text-warning" />
