@@ -37,7 +37,7 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({ open, onOpenChange, 
             </span>
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="py-6 space-y-6">
           {/* Score */}
           <div>
@@ -57,8 +57,8 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({ open, onOpenChange, 
                 Your score: {result.score}%
               </span>
             </div>
-            <Progress 
-              value={result.score} 
+            <Progress
+              value={result.score}
               className={`h-3 ${result.passed ? "[&>div]:bg-success" : "[&>div]:bg-destructive"}`}
             />
           </div>
@@ -76,19 +76,19 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({ open, onOpenChange, 
               <div className="text-xs text-muted-foreground">Wrong</div>
             </div>
             <div className="text-center">
-              <Zap className="h-5 w-5 mx-auto mb-1 text-warning" />
-              <div className="font-bold text-warning">+{result.xpEarned}</div>
-              <div className="text-xs text-muted-foreground">XP</div>
+              <Zap className={`h-5 w-5 mx-auto mb-1 ${result.passed ? "text-warning" : "text-muted-foreground"}`} />
+              <div className={`font-bold ${result.passed ? "text-warning" : "text-muted-foreground"}`}>+{result.xpEarned}</div>
+              <div className="text-xs text-muted-foreground">{result.passed ? "XP Earned" : "Attending XP"}</div>
             </div>
           </div>
 
           {/* Message */}
           <p className="text-muted-foreground">
-            {result.passed 
+            {result.passed
               ? "Excellent work! You've demonstrated strong knowledge in this topic."
               : "Keep studying and try again. You'll get there!"}
           </p>
-          
+
           {result.passed && (
             <Badge className="bg-success text-success-foreground gap-1">
               <Trophy className="h-3 w-3" />
@@ -96,7 +96,7 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({ open, onOpenChange, 
             </Badge>
           )}
         </div>
-        
+
         <Button onClick={() => onOpenChange(false)} className="w-full">
           Continue
         </Button>

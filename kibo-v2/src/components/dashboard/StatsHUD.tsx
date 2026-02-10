@@ -37,9 +37,9 @@ interface StatsHUDProps {
   levelThresholds?: LevelThreshold[];
 }
 
-export const StatsHUD: React.FC<StatsHUDProps> = ({ 
-  profile, 
-  userStats, 
+export const StatsHUD: React.FC<StatsHUDProps> = ({
+  profile,
+  userStats,
   levelProgress,
   levelThresholds = []
 }) => {
@@ -50,12 +50,12 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
   const problemsSolved = userStats?.problemsSolved ?? 0;
   const applicationsCount = userStats?.applicationsCount ?? 0;
   const achievementsCount = userStats?.achievementsCount ?? 0;
-  
+
   // Calculate level progress
   const currentThreshold = levelThresholds.find(t => t.level === level);
   const nextThreshold = levelThresholds.find(t => t.level === level + 1);
   const levelName = currentThreshold?.title || levelProgress?.title || "Novice";
-  
+
   const xpInLevel = levelProgress?.current ?? (xp - (currentThreshold?.xp_required ?? 0));
   const xpNeeded = levelProgress?.next ?? ((nextThreshold?.xp_required ?? xp) - (currentThreshold?.xp_required ?? 0));
   const progressPercent = levelProgress?.progress ?? (xpNeeded > 0 ? Math.min(100, (xpInLevel / xpNeeded) * 100) : 100);
@@ -63,6 +63,7 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
   const stats = [
     {
       icon: Flame,
+      image: "/assets/icons/flame-3d.png",
       label: "Day Streak",
       value: streak,
       suffix: streak === 1 ? "Day" : "Days",
@@ -73,6 +74,7 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
     },
     {
       icon: Award,
+      image: "/assets/icons/medal-3d.png",
       label: "Level",
       value: `Lvl ${level}`,
       suffix: levelName,
@@ -83,6 +85,7 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
     },
     {
       icon: Zap,
+      image: "/assets/icons/lightning-3d.png",
       label: "Experience",
       value: xp.toLocaleString(),
       suffix: "XP",
@@ -100,18 +103,21 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
   const secondaryStats = [
     {
       icon: Target,
+      image: "/assets/icons/target-3d.png",
       label: "Problems",
       value: problemsSolved,
       color: "text-blue-500",
     },
     {
       icon: TrendingUp,
+      image: "/assets/icons/chart-3d.png",
       label: "Applications",
       value: applicationsCount,
       color: "text-purple-500",
     },
     {
       icon: Trophy,
+      image: "/assets/icons/trophy-3d.png",
       label: "Achievements",
       value: achievementsCount,
       color: "text-amber-500",
@@ -153,8 +159,17 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
                         <span className="text-sm text-muted-foreground">{stat.suffix}</span>
                       </div>
                     </div>
-                    <div className={cn("rounded-xl p-2.5", stat.bgColor)}>
-                      <stat.icon className={cn("h-5 w-5 stroke-[1.5]", stat.color)} />
+                    <div className={cn("rounded-xl p-2", stat.bgColor)}>
+                      {/* Render 3D icon if available, else fallback to Lucide */}
+                      {stat.image ? (
+                        <img
+                          src={stat.image}
+                          alt={stat.label}
+                          className="h-8 w-8 object-contain drop-shadow-sm"
+                        />
+                      ) : (
+                        <stat.icon className={cn("h-5 w-5 stroke-[1.5]", stat.color)} />
+                      )}
                     </div>
                   </div>
 
@@ -193,7 +208,16 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
             transition={{ delay: 0.3 + index * 0.05 }}
             className="flex items-center gap-2 text-sm"
           >
-            <stat.icon className={cn("h-4 w-4", stat.color)} />
+            {/* Render 3D icon if available, else fallback to Lucide */}
+            {stat.image ? (
+              <img
+                src={stat.image}
+                alt={stat.label}
+                className="h-5 w-5 object-contain"
+              />
+            ) : (
+              <stat.icon className={cn("h-4 w-4", stat.color)} />
+            )}
             <span className="text-muted-foreground">{stat.label}:</span>
             <span className="font-semibold">{stat.value}</span>
           </motion.div>

@@ -26,6 +26,7 @@ const Messages = lazy(() => import("./pages/Messages"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Learning = lazy(() => import("./pages/Learning"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Asset Preloading for "Instant" Feel ---
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/learning" element={<Learning />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

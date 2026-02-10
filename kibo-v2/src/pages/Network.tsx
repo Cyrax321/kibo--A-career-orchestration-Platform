@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
+import {
   TrendingUp, Users, UserPlus
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,7 +45,7 @@ const Network: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
-  
+
   const [posts, setPosts] = React.useState<Post[]>([]);
   const [suggestedUsers, setSuggestedUsers] = React.useState<SuggestedUser[]>([]);
   const [pendingCount, setPendingCount] = React.useState(0);
@@ -56,7 +56,7 @@ const Network: React.FC = () => {
     avatar_url: string | null;
     headline: string | null;
   } | null>(null);
-  
+
   // Connect dialog state
   const [connectDialogOpen, setConnectDialogOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<SuggestedUser | null>(null);
@@ -72,16 +72,16 @@ const Network: React.FC = () => {
         return;
       }
       setCurrentUserId(session.user.id);
-      
+
       // Fetch user profile
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name, avatar_url, headline")
         .eq("user_id", session.user.id)
         .single();
-      
+
       if (profile) setUserProfile(profile);
-      
+
       fetchData(session.user.id);
     };
     checkAuth();
@@ -131,11 +131,11 @@ const Network: React.FC = () => {
         .from("profiles")
         .select("user_id, full_name, headline, avatar_url")
         .in("user_id", userIds);
-      
+
       // Check upvotes for current user
       const { data: { session } } = await supabase.auth.getSession();
       let userUpvotes: string[] = [];
-      
+
       if (session) {
         const { data: upvotes } = await supabase
           .from("post_upvotes")
@@ -143,13 +143,13 @@ const Network: React.FC = () => {
           .eq("user_id", session.user.id);
         userUpvotes = upvotes?.map(u => u.post_id) || [];
       }
-      
+
       const postsWithProfiles = postsData.map(post => ({
         ...post,
         profiles: profiles?.find(p => p.user_id === post.user_id) || undefined,
         user_upvoted: userUpvotes.includes(post.id),
       }));
-      
+
       setPosts(postsWithProfiles);
     }
   };
@@ -186,7 +186,7 @@ const Network: React.FC = () => {
       .select("id", { count: "exact", head: true })
       .eq("receiver_id", userId)
       .eq("status", "pending");
-    
+
     setPendingCount(count || 0);
   };
 
@@ -203,7 +203,7 @@ const Network: React.FC = () => {
         .delete()
         .eq("post_id", postId)
         .eq("user_id", session.user.id);
-      
+
       await supabase.from("posts")
         .update({ upvotes: post.upvotes - 1 })
         .eq("id", postId);
@@ -211,14 +211,14 @@ const Network: React.FC = () => {
       // Add upvote
       await supabase.from("post_upvotes")
         .insert({ post_id: postId, user_id: session.user.id });
-      
+
       // Play like sound
       playSound("like");
-      
+
       await supabase.from("posts")
         .update({ upvotes: post.upvotes + 1 })
         .eq("id", postId);
-      
+
       // Notify post author
       if (post.user_id !== session.user.id) {
         const { data: myProfile } = await supabase
@@ -238,8 +238,8 @@ const Network: React.FC = () => {
     }
 
     // Optimistic update
-    setPosts(prev => prev.map(p => 
-      p.id === postId 
+    setPosts(prev => prev.map(p =>
+      p.id === postId
         ? { ...p, upvotes: p.upvotes + (p.user_upvoted ? -1 : 1), user_upvoted: !p.user_upvoted }
         : p
     ));
@@ -262,7 +262,7 @@ const Network: React.FC = () => {
 
   const handleConnect = async (userId: string, note: string) => {
     setConnectLoading(true);
-    
+
     const { error } = await supabase.from("connections").insert({
       requester_id: currentUserId,
       receiver_id: userId,
@@ -290,7 +290,7 @@ const Network: React.FC = () => {
       setSuggestedUsers(prev => prev.filter(u => u.user_id !== userId));
       setConnectDialogOpen(false);
     }
-    
+
     setConnectLoading(false);
   };
 
@@ -316,8 +316,8 @@ const Network: React.FC = () => {
   return (
     <AppLayout>
       <div className="p-6 lg:p-8">
-        <Tabs 
-          value={activeTab} 
+        <Tabs
+          value={activeTab}
           onValueChange={(v) => setSearchParams({ tab: v })}
         >
           <div className="flex items-center justify-between mb-6">
@@ -389,7 +389,7 @@ const Network: React.FC = () => {
                     ) : (
                       suggestedUsers.slice(0, 5).map((user) => (
                         <div key={user.user_id} className="flex items-center gap-3">
-                          <Avatar 
+                          <Avatar
                             className="h-10 w-10 cursor-pointer"
                             onClick={() => navigate(`/profile/${user.user_id}`)}
                           >
@@ -399,7 +399,7 @@ const Network: React.FC = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p 
+                            <p
                               className="font-medium text-sm truncate hover:text-primary cursor-pointer"
                               onClick={() => navigate(`/profile/${user.user_id}`)}
                             >

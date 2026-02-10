@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   ThumbsUp, MessageSquare, Share2, Award, HelpCircle, Globe,
   MoreHorizontal, Trash2, Flag, Bookmark
 } from "lucide-react";
@@ -74,11 +74,11 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   const getPostTypeIcon = () => {
     switch (post.post_type) {
-      case "achievement": 
+      case "achievement":
         return <Award className="h-4 w-4 text-primary" />;
-      case "question": 
+      case "question":
         return <HelpCircle className="h-4 w-4 text-muted-foreground" />;
-      default: 
+      default:
         return <Globe className="h-4 w-4 text-primary" />;
     }
   };
@@ -131,7 +131,7 @@ export const PostCard: React.FC<PostCardProps> = ({
     } else {
       setNewComment("");
       fetchComments();
-      
+
       // Notify post author
       if (post.user_id !== currentUserId) {
         const { data: myProfile } = await supabase
@@ -163,7 +163,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       <Card className="overflow-hidden">
         {/* Author Header */}
         <div className="p-4 flex items-start gap-3">
-          <Avatar 
+          <Avatar
             className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
             onClick={() => navigate(`/profile/${post.user_id}`)}
           >
@@ -175,7 +175,7 @@ export const PostCard: React.FC<PostCardProps> = ({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span 
+              <span
                 className="font-semibold text-sm hover:text-primary cursor-pointer transition-colors"
                 onClick={() => navigate(`/profile/${post.user_id}`)}
               >
@@ -203,7 +203,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 Save post
               </DropdownMenuItem>
               {post.user_id === currentUserId ? (
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="text-destructive"
                   onClick={() => onDelete?.(post.id)}
                 >
@@ -334,7 +334,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                   <div className="space-y-3">
                     {comments.map((comment) => (
                       <div key={comment.id} className="flex gap-3">
-                        <Avatar 
+                        <Avatar
                           className="h-8 w-8 shrink-0 cursor-pointer"
                           onClick={() => navigate(`/profile/${comment.user_id}`)}
                         >
@@ -345,7 +345,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                         </Avatar>
                         <div className="flex-1 bg-muted rounded-lg p-3">
                           <div className="flex items-center justify-between gap-2">
-                            <span 
+                            <span
                               className="font-medium text-sm hover:text-primary cursor-pointer"
                               onClick={() => navigate(`/profile/${comment.user_id}`)}
                             >

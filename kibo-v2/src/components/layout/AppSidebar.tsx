@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Calendar,
   Settings,
+  GraduationCap,
   Trophy,
 } from "lucide-react";
 import kiboLogo from "@/assets/kibo-logo.png";
@@ -32,6 +33,7 @@ import { cn } from "@/lib/utils";
 const mainNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Applications", url: "/applications", icon: Target },
+  { title: "Skill Paths", url: "/learning", icon: GraduationCap },
   { title: "Code Lab", url: "/arena", icon: FlaskConical },
   { title: "Assessments", url: "/assessments", icon: BookOpen },
   { title: "Contests", url: "/contests", icon: Trophy },
@@ -73,18 +75,18 @@ export function AppSidebar() {
     >
       {/* Logo Header */}
       <SidebarHeader className="border-b border-white/20 p-4">
-        <motion.div 
+        <motion.div
           className="flex items-center gap-3"
           initial={false}
           animate={{ justifyContent: collapsed ? "center" : "flex-start" }}
         >
-          <img 
-            src={kiboLogo} 
-            alt="Kibo" 
+          <img
+            src={kiboLogo}
+            alt="Kibo"
             className="h-9 w-9 rounded-xl shadow-md shadow-primary/15 object-cover"
           />
           {!collapsed && (
-            <motion.span 
+            <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

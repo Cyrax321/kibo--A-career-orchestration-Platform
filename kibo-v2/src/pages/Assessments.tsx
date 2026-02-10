@@ -1,13 +1,14 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Code2, Filter, History, Trophy, RotateCcw } from "lucide-react";
+import { BookOpen, Code2, Filter, History, Trophy, RotateCcw, Clock, ShieldAlert, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import confetti from "canvas-confetti";
 import { useGamification } from "@/hooks/useGamification";
@@ -101,6 +102,7 @@ const Assessments: React.FC = () => {
   // Assessment state
   const [assessments] = React.useState<Assessment[]>(DEMO_ASSESSMENTS);
   const [activeAssessment, setActiveAssessment] = React.useState<Assessment | null>(null);
+  const [selectedAssessment, setSelectedAssessment] = React.useState<Assessment | null>(null);
 
   // Quiz state
   const [selectedTopic, setSelectedTopic] = React.useState("all");
@@ -191,12 +193,15 @@ const Assessments: React.FC = () => {
         description: `You scored ${quizResult.score}%. +${quizResult.xpEarned} XP earned`
       });
     } else {
-      awardXP('quiz_completed', Math.floor(quizResult.xpEarned / 2));
+      const attendingXP = 5;
+      awardXP('quiz_completed', attendingXP);
       toast({
         title: "Quiz Completed",
-        description: `You scored ${quizResult.score}%. Keep practicing!`,
+        description: `You scored ${quizResult.score}%. +${attendingXP} Attending XP`,
         variant: "destructive"
       });
+      // Update local state for dialog
+      setResult({ ...quizResult, xpEarned: attendingXP });
     }
 
     // Refresh history
@@ -205,7 +210,7 @@ const Assessments: React.FC = () => {
 
   const handleAssessmentComplete = async (passed: boolean, score: number, timeTaken: number) => {
     setActiveAssessment(null);
-    const xpEarned = passed ? 300 : 50;
+    const xpEarned = passed ? 300 : 10; // 10 XP for attending
     setResult({
       passed,
       score,
@@ -430,7 +435,7 @@ const Assessments: React.FC = () => {
                   >
                     <AssessmentCard
                       assessment={assessment}
-                      onStart={() => setActiveAssessment(assessment)}
+                      onStart={() => setSelectedAssessment(assessment)}
                     />
                   </motion.div>
                 ))}
@@ -495,6 +500,76 @@ const Assessments: React.FC = () => {
             </TabsContent>
           </Tabs>
         </motion.div>
+
+        {/* Assessment Entry Confirmation Dialog */}
+        <Dialog open={!!selectedAssessment} onOpenChange={(open) => !open && setSelectedAssessment(null)}>
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <Code2 className="h-6 w-6 text-primary" />
+                {selectedAssessment?.title}
+              </DialogTitle>
+              <DialogDescription className="text-base pt-2">
+                You are about to enter a timed Mock Online Assessment. Please review the rules below:
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-4 space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg space-y-3 border">
+                <div className="flex items-start gap-3">
+                  <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Strict Time Limit</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have <strong>{selectedAssessment?.duration_minutes} minutes</strong> total.
+                      The timer starts immediately and cannot be paused.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-destructive">Anti-Cheating Active</h4>
+                    <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-1 mt-1">
+                      <li>Tab switching is monitored and penalized.</li>
+                      <li>Copy/Paste is disabled in the editor.</li>
+                      <li>Right-click context menu is disabled.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <BookOpen className="h-5 w-5 text-success shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Environment</h4>
+                    <p className="text-sm text-muted-foreground">
+                      We recommend maximizing your browser window for the best experience.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setSelectedAssessment(null)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selectedAssessment) {
+                    setActiveAssessment(selectedAssessment);
+                    setSelectedAssessment(null);
+                  }
+                }}
+                className="gap-2"
+              >
+                Start Assessment <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
       </motion.div>
     </AppLayout>
   );

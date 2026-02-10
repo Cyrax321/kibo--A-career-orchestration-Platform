@@ -1,7 +1,7 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Image, Video, X, Send, Smile, Globe, 
+import {
+  Image, Video, X, Send, Smile, Globe,
   FileImage, FileVideo, Loader2, Award, HelpCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +39,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
 }) => {
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  
+
   const [content, setContent] = React.useState("");
   const [postType, setPostType] = React.useState<PostType>("update");
   const [mediaFiles, setMediaFiles] = React.useState<File[]>([]);
@@ -99,7 +99,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
   const uploadMedia = async (file: File): Promise<string | null> => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${currentUserId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    
+
     const { error: uploadError } = await supabase.storage
       .from("post-media")
       .upload(fileName, file);
@@ -124,12 +124,12 @@ export const CreatePost: React.FC<CreatePostProps> = ({
     try {
       // Upload media files
       let imageUrl: string | null = null;
-      
+
       if (mediaFiles.length > 0) {
         // For simplicity, just upload the first file as image_url
         // In a real app, you'd want a media_urls array
         imageUrl = await uploadMedia(mediaFiles[0]);
-        
+
         if (!imageUrl) {
           toast({
             title: "Upload failed",
@@ -160,7 +160,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
           .or(`requester_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`);
 
         if (connections && connections.length > 0) {
-          const connectionUserIds = connections.map(c => 
+          const connectionUserIds = connections.map(c =>
             c.requester_id === currentUserId ? c.receiver_id : c.requester_id
           );
 
@@ -168,7 +168,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
           const notifications = connectionUserIds.map(userId => ({
             user_id: userId,
             type: postType === "achievement" ? "achievement" : "new_post",
-            title: postType === "achievement" 
+            title: postType === "achievement"
               ? `${userProfile?.full_name || "Someone"} just earned an achievement!`
               : `${userProfile?.full_name || "Someone"} shared a new post`,
             body: content.trim().length > 100 ? content.trim().slice(0, 100) + "..." : content.trim(),
@@ -289,7 +289,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             className="hidden"
             onChange={handleFileSelect}
           />
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -300,7 +300,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({
             <FileImage className="h-4 w-4 text-primary" />
             <span className="hidden sm:inline">Photo</span>
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"

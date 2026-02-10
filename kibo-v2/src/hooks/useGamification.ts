@@ -304,6 +304,7 @@ export function useGamification(options: UseGamificationOptions = { showNotifica
 
     // Actions
     awardXP: (action: string, customXP?: number) => awardXPMutation.mutate({ action, customXP }),
+    spendXP: (action: string, amount: number) => awardXPMutation.mutate({ action, customXP: -amount }),
     recordProblemSolved: (difficulty: 'easy' | 'medium' | 'hard') => recordProblemMutation.mutate({ difficulty }),
     recordAssessment: (assessmentId: string, score: number, passed: boolean, timeTaken: number) =>
       recordAssessmentMutation.mutate({ assessmentId, score, passed, timeTaken }),
