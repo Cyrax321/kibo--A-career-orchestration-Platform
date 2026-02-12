@@ -373,12 +373,18 @@ const soundPlayers: Record<SoundType, (volume: number) => void> = {
 };
 
 // Main play function
-export const playSound = (type: SoundType, config: Partial<SoundConfig> = {}): void => {
+// Main play function
+export const playSound = async (type: SoundType, config: Partial<SoundConfig> = {}): Promise<void> => {
   const finalConfig = { ...defaultConfig, ...config };
 
   if (!finalConfig.enabled) return;
 
   try {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") {
+      await ctx.resume();
+    }
+
     const player = soundPlayers[type];
     if (player) {
       player(finalConfig.volume);
