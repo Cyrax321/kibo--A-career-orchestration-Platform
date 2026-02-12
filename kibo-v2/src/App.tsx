@@ -27,6 +27,10 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Learning = lazy(() => import("./pages/Learning"));
+const Certifications = lazy(() => import("./pages/Certifications"));
+const ExamEngine = lazy(() => import("./components/certifications/ExamEngine"));
+const ResultBreakdown = lazy(() => import("./components/certifications/ResultBreakdown"));
+const VerifyCertificate = lazy(() => import("./components/certifications/VerifyCertificate"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // --- Asset Preloading for "Instant" Feel ---
@@ -77,6 +81,10 @@ const App = () => (
             <Route path="/achievements" element={<Achievements />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/learning" element={<Learning />} />
+            <Route path="/certifications" element={<Certifications />} />
+            <Route path="/certifications/:certId/exam" element={<ExamEngine />} />
+            <Route path="/certifications/:certId/result/:attemptId" element={<ResultBreakdown />} />
+            <Route path="/verify/:certificateId" element={<VerifyCertificate />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

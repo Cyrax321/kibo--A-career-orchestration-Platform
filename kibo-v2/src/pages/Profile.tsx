@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  MapPin, Link as LinkIcon, Github, Linkedin, Award, Code2, 
-  Target, Users, Trophy, Edit2, CheckCircle2
+import {
+  MapPin, Link as LinkIcon, Github, Linkedin, Award, Code2,
+  Target, Users, Trophy, Edit2, CheckCircle2, Upload, Plus, X
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { ContributionGraph } from "@/components/profile/ContributionGraph";
 
 interface Profile {
   id: string;
@@ -64,15 +65,15 @@ const AchievementBadge: React.FC<{ achievement: Achievement }> = ({ achievement 
     whileHover={{ scale: 1.05 }}
     className={cn(
       "relative flex flex-col items-center p-3 rounded-xl transition-all",
-      achievement.unlocked 
-        ? "bg-primary/10" 
+      achievement.unlocked
+        ? "bg-primary/10"
         : "bg-muted opacity-50"
     )}
   >
     <div className={cn(
       "w-12 h-12 rounded-full flex items-center justify-center mb-2",
-      achievement.unlocked 
-        ? "bg-primary/20 text-primary" 
+      achievement.unlocked
+        ? "bg-primary/20 text-primary"
         : "bg-muted-foreground/20 text-muted-foreground"
     )}>
       <Trophy className="h-6 w-6" />
@@ -88,18 +89,31 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userId } = useParams();
-  
+
   const [profile, setProfile] = React.useState<Profile | null>(null);
   const [isOwnProfile, setIsOwnProfile] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [editDialogOpen, setEditDialogOpen] = React.useState(false);
-  const [editForm, setEditForm] = React.useState({
+  const [uploading, setUploading] = React.useState(false);
+  const [newSkill, setNewSkill] = React.useState("");
+  const [editForm, setEditForm] = React.useState<{
+    full_name: string;
+    headline: string;
+    bio: string;
+    country: string;
+    github_url: string;
+    linkedin_url: string;
+    skills: string[];
+    avatar_url: string;
+  }>({
     full_name: "",
     headline: "",
     bio: "",
     country: "",
     github_url: "",
     linkedin_url: "",
+    skills: [],
+    avatar_url: "",
   });
 
   React.useEffect(() => {
@@ -133,6 +147,8 @@ const Profile: React.FC = () => {
         country: data.country || "",
         github_url: data.github_url || "",
         linkedin_url: data.linkedin_url || "",
+        skills: data.skills || [],
+        avatar_url: data.avatar_url || "",
       });
       setLoading(false);
     };
@@ -152,6 +168,8 @@ const Profile: React.FC = () => {
         country: editForm.country,
         github_url: editForm.github_url || null,
         linkedin_url: editForm.linkedin_url || null,
+        skills: editForm.skills,
+        avatar_url: editForm.avatar_url || null,
       })
       .eq("id", profile.id);
 
@@ -159,9 +177,54 @@ const Profile: React.FC = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Success", description: "Profile updated!" });
-      setProfile({ ...profile, ...editForm });
+      setProfile({ ...profile, ...editForm, skills: editForm.skills, avatar_url: editForm.avatar_url });
       setEditDialogOpen(false);
     }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error("You must select an image to upload.");
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+
+      setEditForm({ ...editForm, avatar_url: data.publicUrl });
+      toast({ title: "Success", description: "Image uploaded!" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSkillAdd = () => {
+    if (newSkill && !editForm.skills.includes(newSkill)) {
+      setEditForm({ ...editForm, skills: [...editForm.skills, newSkill] });
+      setNewSkill("");
+    }
+  };
+
+  const handleSkillRemove = (skillToRemove: string) => {
+    setEditForm({
+      ...editForm,
+      skills: editForm.skills.filter((skill) => skill !== skillToRemove),
+    });
   };
 
   const getInitials = (name: string | null) => {
@@ -214,7 +277,7 @@ const Profile: React.FC = () => {
                     </p>
                   )}
                 </div>
-                
+
                 {isOwnProfile && (
                   <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                     <DialogTrigger asChild>
@@ -227,7 +290,26 @@ const Profile: React.FC = () => {
                       <DialogHeader>
                         <DialogTitle>Edit Profile</DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-4 mt-4">
+                      <div className="space-y-4 mt-4 max-h-[70vh] overflow-y-auto px-1">
+
+                        {/* Avatar Upload */}
+                        <div className="flex flex-col items-center gap-4 p-4 border rounded-lg bg-muted/50">
+                          <Avatar className="h-20 w-20">
+                            <AvatarImage src={editForm.avatar_url || undefined} />
+                            <AvatarFallback>{getInitials(editForm.full_name)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              disabled={uploading}
+                              className="w-full max-w-xs"
+                              id="avatar-upload"
+                            />
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
                           <Label>Full Name</Label>
                           <Input
@@ -277,7 +359,38 @@ const Profile: React.FC = () => {
                             />
                           </div>
                         </div>
-                        <Button className="w-full" onClick={handleUpdateProfile}>
+
+                        {/* Skills Manager */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <Label>Skills</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={newSkill}
+                              onChange={(e) => setNewSkill(e.target.value)}
+                              placeholder="Add a skill (e.g. React)"
+                              onKeyDown={(e) => e.key === "Enter" && handleSkillAdd()}
+                            />
+                            <Button type="button" size="icon" onClick={handleSkillAdd}>
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {editForm.skills.map((skill) => (
+                              <Badge key={skill} variant="secondary" className="px-2 py-1 gap-1">
+                                {skill}
+                                <button
+                                  type="button"
+                                  onClick={() => handleSkillRemove(skill)}
+                                  className="hover:text-destructive"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <Button className="w-full mt-2" onClick={handleUpdateProfile}>
                           Save Changes
                         </Button>
                       </div>
@@ -335,6 +448,9 @@ const Profile: React.FC = () => {
             <p className="text-xs text-muted-foreground">Global Rank</p>
           </Card>
         </div>
+
+        {/* Contribution Graph */}
+        <ContributionGraph userId={profile.user_id} />
 
         {/* Skills */}
         {profile.skills && profile.skills.length > 0 && (

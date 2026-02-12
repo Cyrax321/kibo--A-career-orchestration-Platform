@@ -12,6 +12,7 @@ import {
   Settings,
   GraduationCap,
   Trophy,
+  Award,
 } from "lucide-react";
 import kiboLogo from "@/assets/kibo-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -36,6 +37,7 @@ const mainNavItems = [
   { title: "Skill Paths", url: "/learning", icon: GraduationCap },
   { title: "Code Lab", url: "/arena", icon: FlaskConical },
   { title: "Assessments", url: "/assessments", icon: BookOpen },
+  { title: "Certifications", url: "/certifications", icon: Award },
   { title: "Contests", url: "/contests", icon: Trophy },
   { title: "Schedule", url: "/schedule", icon: Calendar },
 ];

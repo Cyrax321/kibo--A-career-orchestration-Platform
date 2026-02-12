@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
-  }
   public: {
     Tables: {
       achievements: {
@@ -98,357 +93,102 @@ export type Database = {
       assessment_attempts: {
         Row: {
           answers: Json | null
-          assessment_id: string
-          assessment_title: string | null
           completed_at: string | null
           created_at: string
           id: string
-          max_score: number | null
-          passed: boolean | null
+          questions_order: number[] | null
           score: number | null
           started_at: string
-          time_taken_seconds: number | null
+          status: string
           user_id: string
-          xp_earned: number | null
         }
         Insert: {
           answers?: Json | null
-          assessment_id: string
-          assessment_title?: string | null
           completed_at?: string | null
           created_at?: string
           id?: string
-          max_score?: number | null
-          passed?: boolean | null
+          questions_order?: number[] | null
           score?: number | null
           started_at?: string
-          time_taken_seconds?: number | null
+          status?: string
           user_id: string
-          xp_earned?: number | null
         }
         Update: {
           answers?: Json | null
-          assessment_id?: string
-          assessment_title?: string | null
           completed_at?: string | null
           created_at?: string
           id?: string
-          max_score?: number | null
-          passed?: boolean | null
+          questions_order?: number[] | null
           score?: number | null
           started_at?: string
-          time_taken_seconds?: number | null
+          status?: string
           user_id?: string
-          xp_earned?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assessment_attempts_assessment_id_fkey"
-            columns: ["assessment_id"]
-            isOneToOne: false
-            referencedRelation: "assessments"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      assessments: {
-        Row: {
-          company: string
-          created_at: string
-          description: string | null
-          difficulty: string
-          duration_minutes: number
-          id: string
-          problem_ids: string[] | null
-          success_rate: number | null
-          title: string
-        }
-        Insert: {
-          company: string
-          created_at?: string
-          description?: string | null
-          difficulty: string
-          duration_minutes?: number
-          id?: string
-          problem_ids?: string[] | null
-          success_rate?: number | null
-          title: string
-        }
-        Update: {
-          company?: string
-          created_at?: string
-          description?: string | null
-          difficulty?: string
-          duration_minutes?: number
-          id?: string
-          problem_ids?: string[] | null
-          success_rate?: number | null
-          title?: string
         }
         Relationships: []
       }
       coding_problems: {
         Row: {
-          company_tags: string[] | null
-          constraints: string | null
           created_at: string
           description: string
           difficulty: string
-          editorial_content: string | null
           id: string
-          sample_cases: Json | null
-          starter_code: Json | null
+          initial_code: string
+          solution_code: string | null
+          starter_code: string | null
           test_cases: Json | null
           title: string
-          topic_tags: string[] | null
+          updated_at: string
         }
         Insert: {
-          company_tags?: string[] | null
-          constraints?: string | null
           created_at?: string
           description: string
           difficulty: string
-          editorial_content?: string | null
           id?: string
-          sample_cases?: Json | null
-          starter_code?: Json | null
+          initial_code: string
+          solution_code?: string | null
+          starter_code?: string | null
           test_cases?: Json | null
           title: string
-          topic_tags?: string[] | null
+          updated_at?: string
         }
         Update: {
-          company_tags?: string[] | null
-          constraints?: string | null
           created_at?: string
           description?: string
           difficulty?: string
-          editorial_content?: string | null
           id?: string
-          sample_cases?: Json | null
-          starter_code?: Json | null
+          initial_code?: string
+          solution_code?: string | null
+          starter_code?: string | null
           test_cases?: Json | null
           title?: string
-          topic_tags?: string[] | null
+          updated_at?: string
         }
         Relationships: []
-      }
-      comments: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          post_id: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          post_id: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          post_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       connections: {
         Row: {
           created_at: string
           id: string
-          note: string | null
-          receiver_id: string
-          requester_id: string
           status: string
           updated_at: string
+          user_id_1: string
+          user_id_2: string
         }
         Insert: {
           created_at?: string
           id?: string
-          note?: string | null
-          receiver_id: string
-          requester_id: string
           status?: string
           updated_at?: string
+          user_id_1: string
+          user_id_2: string
         }
         Update: {
           created_at?: string
           id?: string
-          note?: string | null
-          receiver_id?: string
-          requester_id?: string
           status?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      contest_registrations: {
-        Row: {
-          contest_id: string
-          finish_time: string | null
-          id: string
-          registered_at: string
-          score: number | null
-          user_id: string
-        }
-        Insert: {
-          contest_id: string
-          finish_time?: string | null
-          id?: string
-          registered_at?: string
-          score?: number | null
-          user_id: string
-        }
-        Update: {
-          contest_id?: string
-          finish_time?: string | null
-          id?: string
-          registered_at?: string
-          score?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "contest_registrations_contest_id_fkey"
-            columns: ["contest_id"]
-            isOneToOne: false
-            referencedRelation: "contests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      contests: {
-        Row: {
-          created_at: string
-          description: string | null
-          end_time: string
-          id: string
-          is_active: boolean | null
-          problem_ids: string[] | null
-          start_time: string
-          title: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          end_time: string
-          id?: string
-          is_active?: boolean | null
-          problem_ids?: string[] | null
-          start_time: string
-          title: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          end_time?: string
-          id?: string
-          is_active?: boolean | null
-          problem_ids?: string[] | null
-          start_time?: string
-          title?: string
-        }
-        Relationships: []
-      }
-      daily_activities: {
-        Row: {
-          activity_date: string
-          applications_sent: number
-          assessments_completed: number
-          created_at: string
-          id: string
-          problems_solved: number
-          user_id: string
-          xp_earned: number
-        }
-        Insert: {
-          activity_date?: string
-          applications_sent?: number
-          assessments_completed?: number
-          created_at?: string
-          id?: string
-          problems_solved?: number
-          user_id: string
-          xp_earned?: number
-        }
-        Update: {
-          activity_date?: string
-          applications_sent?: number
-          assessments_completed?: number
-          created_at?: string
-          id?: string
-          problems_solved?: number
-          user_id?: string
-          xp_earned?: number
-        }
-        Relationships: []
-      }
-      daily_tasks: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          description: string | null
-          id: string
-          is_completed: boolean
-          task_date: string
-          task_type: string | null
-          title: string
-          user_id: string
-          xp_reward: number
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_completed?: boolean
-          task_date?: string
-          task_type?: string | null
-          title: string
-          user_id: string
-          xp_reward?: number
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_completed?: boolean
-          task_date?: string
-          task_type?: string | null
-          title?: string
-          user_id?: string
-          xp_reward?: number
-        }
-        Relationships: []
-      }
-      level_thresholds: {
-        Row: {
-          level: number
-          title: string | null
-          xp_required: number
-        }
-        Insert: {
-          level: number
-          title?: string | null
-          xp_required: number
-        }
-        Update: {
-          level?: number
-          title?: string | null
-          xp_required?: number
+          user_id_1?: string
+          user_id_2?: string
         }
         Relationships: []
       }
@@ -457,25 +197,28 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          is_read: boolean | null
+          is_read: boolean
           receiver_id: string
           sender_id: string
+          updated_at: string
         }
         Insert: {
           content: string
           created_at?: string
           id?: string
-          is_read?: boolean | null
+          is_read?: boolean
           receiver_id: string
           sender_id: string
+          updated_at?: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
-          is_read?: boolean | null
+          is_read?: boolean
           receiver_id?: string
           sender_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -646,103 +389,53 @@ export type Database = {
         }
         Relationships: []
       }
-      quiz_attempts: {
+      skills: {
         Row: {
-          answers: Json
-          completed_at: string | null
-          correct_answers: number
+          category: string
           created_at: string
           id: string
-          passed: boolean
-          quiz_id: string
-          quiz_title: string
-          quiz_topic: string
-          score: number
-          started_at: string
-          time_taken_seconds: number | null
-          total_questions: number
-          user_id: string
-          xp_earned: number
+          name: string
         }
         Insert: {
-          answers?: Json
-          completed_at?: string | null
-          correct_answers?: number
+          category: string
           created_at?: string
           id?: string
-          passed?: boolean
-          quiz_id: string
-          quiz_title: string
-          quiz_topic: string
-          score?: number
-          started_at?: string
-          time_taken_seconds?: number | null
-          total_questions: number
-          user_id: string
-          xp_earned?: number
+          name: string
         }
         Update: {
-          answers?: Json
-          completed_at?: string | null
-          correct_answers?: number
+          category?: string
           created_at?: string
           id?: string
-          passed?: boolean
-          quiz_id?: string
-          quiz_title?: string
-          quiz_topic?: string
-          score?: number
-          started_at?: string
-          time_taken_seconds?: number | null
-          total_questions?: number
-          user_id?: string
-          xp_earned?: number
+          name?: string
         }
         Relationships: []
       }
-      schedule_events: {
+      study_sessions: {
         Row: {
-          created_at: string
-          description: string | null
-          event_date: string
-          event_time: string | null
-          event_type: string
+          duration_minutes: number
+          ended_at: string | null
           id: string
-          related_application_id: string | null
-          title: string
+          started_at: string
+          topic: string | null
           user_id: string
         }
         Insert: {
-          created_at?: string
-          description?: string | null
-          event_date: string
-          event_time?: string | null
-          event_type: string
+          duration_minutes?: number
+          ended_at?: string | null
           id?: string
-          related_application_id?: string | null
-          title: string
+          started_at?: string
+          topic?: string | null
           user_id: string
         }
         Update: {
-          created_at?: string
-          description?: string | null
-          event_date?: string
-          event_time?: string | null
-          event_type?: string
+          duration_minutes?: number
+          ended_at?: string | null
           id?: string
-          related_application_id?: string | null
-          title?: string
+          started_at?: string
+          topic?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "schedule_events_related_application_id_fkey"
-            columns: ["related_application_id"]
-            isOneToOne: false
-            referencedRelation: "applications"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       submissions: {
         Row: {
@@ -820,6 +513,33 @@ export type Database = {
           },
         ]
       }
+      user_course_progress: {
+        Row: {
+          completed_lessons: string[] | null
+          created_at: string
+          id: string
+          unlocked_hints: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_lessons?: string[] | null
+          created_at?: string
+          id?: string
+          unlocked_hints?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_lessons?: string[] | null
+          created_at?: string
+          id?: string
+          unlocked_hints?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       xp_config: {
         Row: {
           description: string | null
@@ -844,70 +564,45 @@ export type Database = {
     }
     Functions: {
       award_xp: {
-        Args: { p_action: string; p_custom_xp?: number; p_user_id: string }
-        Returns: {
-          leveled_up: boolean
-          new_level: number
-          new_xp: number
-          xp_gained: number
-        }[]
-      }
-      calculate_level: { Args: { xp_amount: number }; Returns: number }
-      check_achievements: {
-        Args: { p_user_id: string }
-        Returns: {
-          achievement_id: string
-          achievement_name: string
-          xp_reward: number
-        }[]
-      }
-      get_xp_value: { Args: { action_id: string }; Returns: number }
-      init_daily_activity: {
-        Args: { p_user_id: string }
-        Returns: {
-          daily_xp: number
-          is_new_day: boolean
-          streak: number
-        }[]
-      }
-      record_application_update: {
-        Args: { p_new_status: string; p_old_status: string; p_user_id: string }
-        Returns: {
-          new_xp: number
-          xp_gained: number
-        }[]
-      }
-      record_assessment_completed: {
         Args: {
-          p_assessment_id: string
-          p_passed: boolean
-          p_score: number
-          p_time_taken: number
+          p_user_id: string
+          p_action: string
+          p_custom_xp?: number
+        }
+        Returns: {
+          new_level: number
+          leveled_up: boolean
+        }
+      }
+      get_course_progress: {
+        Args: {
           p_user_id: string
         }
         Returns: {
-          leveled_up: boolean
-          new_level: number
-          new_xp: number
-          xp_gained: number
+          id: string
+          user_id: string
+          completed_lessons: string[]
+          unlocked_hints: string[]
+          created_at: string
+          updated_at: string
         }[]
       }
-      record_problem_solved: {
-        Args: { p_difficulty: string; p_user_id: string }
+      get_user_activity: {
+        Args: {
+          p_user_id: string
+        }
         Returns: {
-          leveled_up: boolean
-          new_level: number
-          new_problems_solved: number
-          new_xp: number
-          xp_gained: number
+          act_date: string
+          count: number
         }[]
       }
-      update_streak: {
-        Args: { p_user_id: string }
-        Returns: {
-          new_streak: number
-          streak_bonus: number
-        }[]
+      save_course_progress: {
+        Args: {
+          p_user_id: string
+          p_completed_lessons: string[]
+          p_unlocked_hints: string[]
+        }
+        Returns: undefined
       }
     }
     Enums: {
@@ -919,125 +614,99 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  PublicTableNameOrOptions extends
+  | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+  ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])
+  : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+    Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
+  ? R
+  : never
+  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
+    PublicSchema["Views"])
+  ? (PublicSchema["Tables"] &
+    PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+  ? R
+  : never
+  : never
 
 export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+  PublicTableNameOrOptions extends
+  | keyof PublicSchema["Tables"]
+  | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+    Insert: infer I
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
+  ? I
+  : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    Insert: infer I
+  }
+  ? I
+  : never
+  : never
 
 export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+  PublicTableNameOrOptions extends
+  | keyof PublicSchema["Tables"]
+  | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+  ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  : never = never,
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+    Update: infer U
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
+  ? U
+  : never
+  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
+  ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+    Update: infer U
+  }
+  ? U
+  : never
+  : never
 
 export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+  PublicEnumNameOrOptions extends
+  | keyof PublicSchema["Enums"]
+  | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  : never = never,
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
+  ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+  : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof PublicSchema["CompositeTypes"]
+  | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
+  ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+  : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
+  ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : never

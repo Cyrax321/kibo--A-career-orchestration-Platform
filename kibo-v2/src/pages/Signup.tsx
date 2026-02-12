@@ -49,8 +49,8 @@ const Signup = () => {
     }
 
     setIsLoading(true);
-    
-    const { error } = await supabase.auth.signUp({
+
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -68,13 +68,26 @@ const Signup = () => {
       return;
     }
 
+    // Fire-and-forget: send welcome email via Python email server
+    if (authData?.user) {
+      fetch("http://localhost:5050/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "welcome",
+          email: authData.user.email || email,
+          name: name,
+        }),
+      }).catch(() => { });
+    }
+
     toast.success("Account created. Welcome to Kibo.");
     navigate("/dashboard");
   };
 
   const handleOAuthSignup = async (provider: "google" | "github") => {
     setIsOAuthLoading(provider);
-    
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -102,7 +115,7 @@ const Signup = () => {
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
       {/* Animated background grid */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage: `
@@ -115,7 +128,7 @@ const Signup = () => {
 
       {/* Floating orbs */}
       <motion.div
-        animate={{ 
+        animate={{
           x: [0, 80, 0],
           y: [0, -40, 0],
         }}
@@ -123,7 +136,7 @@ const Signup = () => {
         className="absolute top-40 right-20 w-72 h-72 rounded-full bg-primary/5 blur-3xl"
       />
       <motion.div
-        animate={{ 
+        animate={{
           x: [0, -60, 0],
           y: [0, 40, 0],
         }}
@@ -133,7 +146,7 @@ const Signup = () => {
 
       <div className="container relative z-10 mx-auto flex min-h-screen items-center justify-center px-4 py-12">
         <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-2 lg:gap-12">
-          
+
           {/* Left side - Signup form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -163,8 +176,8 @@ const Signup = () => {
 
                 {/* Social login */}
                 <div className="mb-6 grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-11"
                     onClick={() => handleOAuthSignup("google")}
                     disabled={isOAuthLoading !== null}
@@ -182,8 +195,8 @@ const Signup = () => {
                       </>
                     )}
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-11"
                     onClick={() => handleOAuthSignup("github")}
                     disabled={isOAuthLoading !== null}
@@ -292,9 +305,9 @@ const Signup = () => {
                     )}
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11" 
+                  <Button
+                    type="submit"
+                    className="w-full h-11"
                     disabled={isLoading || isOAuthLoading !== null}
                   >
                     {isLoading ? (
@@ -322,8 +335,8 @@ const Signup = () => {
                 {/* Sign in link */}
                 <p className="mt-6 text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     className="font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     Sign in
@@ -334,7 +347,7 @@ const Signup = () => {
           </motion.div>
 
           {/* Right side - Branding */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}

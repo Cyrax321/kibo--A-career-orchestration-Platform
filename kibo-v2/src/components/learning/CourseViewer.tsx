@@ -377,15 +377,22 @@ export const CourseViewer: React.FC<CourseViewerProps> = ({ course }) => {
     const SidebarContent = () => (
         <div className="h-full flex flex-col bg-card/30 backdrop-blur-sm border-r border-border/50">
             <div className="p-6 border-b border-border/50 bg-background/50">
-                <h2 className="font-bold flex items-center gap-3 text-lg tracking-tight">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        <GraduationCap className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-4 mb-4">
+                    <div className={cn(
+                        "rounded-xl overflow-hidden relative shrink-0 transition-transform hover:scale-105",
+                        course.image ? "w-16 h-16 p-0 shadow-md shadow-primary/20" : "w-12 h-12 p-2.5 bg-primary/10 flex items-center justify-center"
+                    )}>
+                        {course.image ? (
+                            <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                        ) : (
+                            <GraduationCap className="h-6 w-6 text-primary" />
+                        )}
                     </div>
-                    <span className="bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h2 className="font-bold text-xl tracking-tight leading-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
                         {course.title}
-                    </span>
-                </h2>
-                <div className="mt-4 flex items-center justify-between text-xs font-medium text-muted-foreground bg-muted/50 p-2 rounded-md">
+                    </h2>
+                </div>
+                <div className="flex items-center justify-between text-xs font-medium text-muted-foreground bg-muted/50 p-2 rounded-md">
                     <span>XP: <span className="text-primary">{courseXP}</span></span>
                     <span>Progress: {Math.round((completedLessons.length / course.lessons.length) * 100)}%</span>
                 </div>

@@ -24,14 +24,16 @@ interface SoundConfig {
 
 const defaultConfig: SoundConfig = {
   enabled: true,
-  volume: 0.3,
+  volume: 0.5, // Increased from 0.3
 };
 
 let audioContext: AudioContext | null = null;
 
 const getAudioContext = (): AudioContext => {
   if (!audioContext) {
-    audioContext = new AudioContext();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    audioContext = new AudioContextClass();
   }
   return audioContext;
 };
@@ -54,15 +56,16 @@ const createChime = (
     oscillator.type = type;
     oscillator.frequency.setValueAtTime(freq, ctx.currentTime);
 
-    const startTime = ctx.currentTime + (i * 0.08);
-    const duration = durations[i] || 0.3;
+    const startTime = ctx.currentTime + (i * 0.05); // Faster arpeggio
+    const duration = durations[i] || 0.5; // Longer default duration
 
+    // ADSR Envelope
     gainNode.gain.setValueAtTime(0, startTime);
-    gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+    gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.05); // Attack
+    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration); // Decay
 
     oscillator.start(startTime);
-    oscillator.stop(startTime + duration);
+    oscillator.stop(startTime + duration + 0.1); // Stop slightly after decay
   });
 };
 
@@ -182,10 +185,11 @@ const playLevelUp = (volume: number): void => {
   });
 };
 
-// XP gained - quick rewarding ping
+// XP gained - Soft confirmation tone
 const playXpGained = (volume: number): void => {
   const ctx = getAudioContext();
-  createChime(ctx, [880, 1108.73], [0.08, 0.15], volume * 0.6);
+  // Single warm tone instead of high-pitched ping
+  createChime(ctx, [523.25], [0.2], volume * 0.4, "triangle");
 };
 
 // General notification - soft bell
@@ -326,32 +330,36 @@ const playQuizPassed = (volume: number): void => {
 };
 
 // Application added - satisfying pop with confirmation
+// Application added - Rich Game Reward Sound
 const playApplicationAdded = (volume: number): void => {
   const ctx = getAudioContext();
 
-  // Quick satisfying pop
-  const oscillator = ctx.createOscillator();
-  const oscillator2 = ctx.createOscillator();
-  const gainNode = ctx.createGain();
+  // Major chord arpeggio (C5, E5, G5, C6)
+  const frequencies = [523.25, 659.25, 783.99, 1046.50];
 
-  oscillator.connect(gainNode);
-  oscillator2.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  frequencies.forEach((freq, i) => {
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
 
-  oscillator.type = "sine";
-  oscillator2.type = "sine";
-  oscillator.frequency.setValueAtTime(500, ctx.currentTime);
-  oscillator.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.08);
-  oscillator2.frequency.setValueAtTime(750, ctx.currentTime + 0.05);
-  oscillator2.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.12);
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
 
-  gainNode.gain.setValueAtTime(volume * 0.5, ctx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    // Sine for clean, bell-like tone
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(freq, ctx.currentTime);
 
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + 0.1);
-  oscillator2.start(ctx.currentTime + 0.05);
-  oscillator2.stop(ctx.currentTime + 0.18);
+    // Staggered start for arpeggio effect
+    const startTime = ctx.currentTime + (i * 0.04);
+    const duration = 0.4;
+
+    // Bell-like envelope
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(volume * 0.3, startTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.1);
+  });
 };
 
 // Sound player map
@@ -374,20 +382,39 @@ const soundPlayers: Record<SoundType, (volume: number) => void> = {
 
 // Main play function
 // Main play function
+// Main play function
+let isResuming = false;
+
 export const playSound = async (type: SoundType, config: Partial<SoundConfig> = {}): Promise<void> => {
   const finalConfig = { ...defaultConfig, ...config };
+  // console.log(`[Sound] Playing ${type}`, finalConfig); // Reduced log noise
 
   if (!finalConfig.enabled) return;
 
   try {
     const ctx = getAudioContext();
+
     if (ctx.state === "suspended") {
-      await ctx.resume();
+      if (!isResuming) {
+        isResuming = true;
+        try {
+          await ctx.resume();
+          // console.log(`[Sound] AudioContext resumed`);
+        } catch (e) {
+          console.warn("[Sound] Resume failed:", e);
+        } finally {
+          isResuming = false;
+        }
+      }
     }
+
+    if (ctx.state !== "running") return;
 
     const player = soundPlayers[type];
     if (player) {
       player(finalConfig.volume);
+    } else {
+      console.warn(`[Sound] No player found for ${type}`);
     }
   } catch (error) {
     console.warn("Failed to play sound:", error);
@@ -396,14 +423,24 @@ export const playSound = async (type: SoundType, config: Partial<SoundConfig> = 
 
 // Preload audio context on first user interaction
 export const initSoundSystem = (): void => {
-  const handleInteraction = () => {
-    getAudioContext();
+  const handleInteraction = async () => {
+    const ctx = getAudioContext();
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+        // console.log("[Sound] System initialized and resumed");
+      } catch (e) {
+        console.warn("[Sound] Init resume failed", e);
+      }
+    }
     document.removeEventListener("click", handleInteraction);
     document.removeEventListener("keydown", handleInteraction);
+    document.removeEventListener("touchstart", handleInteraction);
   };
 
   document.addEventListener("click", handleInteraction);
   document.addEventListener("keydown", handleInteraction);
+  document.addEventListener("touchstart", handleInteraction);
 };
 
 // Check if sounds are supported

@@ -35,8 +35,8 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    
-    const { error } = await supabase.auth.signInWithPassword({
+
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -48,13 +48,44 @@ const Login = () => {
       return;
     }
 
+    // Fire-and-forget: send login greeting email via Python email server
+    if (authData?.user) {
+      (async () => {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, streak, xp, level, problems_solved")
+            .eq("user_id", authData.user.id)
+            .single();
+
+          await fetch("http://localhost:5050/send-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "login_greeting",
+              email: authData.user.email,
+              name: profile?.full_name || authData.user.user_metadata?.full_name || "",
+              stats: {
+                streak: profile?.streak || 0,
+                xp: profile?.xp || 0,
+                level: profile?.level || 1,
+                problems_solved: profile?.problems_solved || 0,
+              },
+            }),
+          });
+        } catch (e) {
+          console.warn("Login greeting email failed (non-blocking):", e);
+        }
+      })();
+    }
+
     toast.success("Welcome back!");
     navigate("/dashboard");
   };
 
   const handleOAuthLogin = async (provider: "google" | "github") => {
     setIsOAuthLoading(provider);
-    
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -71,7 +102,7 @@ const Login = () => {
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
       {/* Animated background grid */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage: `
@@ -84,7 +115,7 @@ const Login = () => {
 
       {/* Floating orbs */}
       <motion.div
-        animate={{ 
+        animate={{
           x: [0, 100, 0],
           y: [0, -50, 0],
         }}
@@ -92,7 +123,7 @@ const Login = () => {
         className="absolute top-20 left-20 w-96 h-96 rounded-full bg-primary/5 blur-3xl"
       />
       <motion.div
-        animate={{ 
+        animate={{
           x: [0, -80, 0],
           y: [0, 60, 0],
         }}
@@ -102,9 +133,9 @@ const Login = () => {
 
       <div className="container relative z-10 mx-auto flex min-h-screen items-center justify-center px-4 py-12">
         <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-2 lg:gap-12">
-          
+
           {/* Left side - Branding */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
@@ -142,7 +173,7 @@ const Login = () => {
             </div>
 
             {/* Stats */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
@@ -189,8 +220,8 @@ const Login = () => {
 
                 {/* Social login */}
                 <div className="mb-6 grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-11"
                     onClick={() => handleOAuthLogin("google")}
                     disabled={isOAuthLoading !== null}
@@ -208,8 +239,8 @@ const Login = () => {
                       </>
                     )}
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-11"
                     onClick={() => handleOAuthLogin("github")}
                     disabled={isOAuthLoading !== null}
@@ -265,8 +296,8 @@ const Login = () => {
                       <label className="text-sm font-medium text-foreground" htmlFor="password">
                         Password
                       </label>
-                      <Link 
-                        to="/forgot-password" 
+                      <Link
+                        to="/forgot-password"
                         className="text-xs text-primary hover:text-primary/80 transition-colors"
                       >
                         Forgot password?
@@ -296,9 +327,9 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11" 
+                  <Button
+                    type="submit"
+                    className="w-full h-11"
                     disabled={isLoading || isOAuthLoading !== null}
                   >
                     {isLoading ? (
@@ -319,8 +350,8 @@ const Login = () => {
                 {/* Sign up link */}
                 <p className="mt-6 text-center text-sm text-muted-foreground">
                   New to Kibo?{" "}
-                  <Link 
-                    to="/signup" 
+                  <Link
+                    to="/signup"
                     className="font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     Create an account
@@ -329,7 +360,7 @@ const Login = () => {
               </div>
 
               {/* Trust badges */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}

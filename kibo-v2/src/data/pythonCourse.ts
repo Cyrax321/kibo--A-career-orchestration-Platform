@@ -17,11 +17,15 @@ export interface CourseData {
     title: string;
     description: string;
     lessons: CourseLesson[];
+    image?: string;
 }
+
+import kiboPythonCourseImg from "@/assets/kibo-python-course.jpg";
 
 export const pythonCourse: CourseData = {
     id: "python-beginner",
     title: "KIBO PYTHON COURSE",
+    image: kiboPythonCourseImg,
     description: "Master Python the Kibo Way - Simple, Fast, & Effective.",
     lessons: [
         {
