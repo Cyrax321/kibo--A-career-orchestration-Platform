@@ -1,110 +1,90 @@
-<div align="center">
-  <img src="public/kibo-logo.svg" alt="Kibo Logo" width="120" height="auto" />
-  <h1>Kibo</h1>
-  <p>
-    <strong>The Intelligent Career Orchestration Platform</strong>
-  </p>
-  
-  <p>
-    <a href="#features">Features</a> •
-    <a href="#architecture">Architecture</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#contributing">Contributing</a> •
-    <a href="#license">License</a>
-  </p>
+# Kibo System Card
 
-  <p>
-    <img src="https://img.shields.io/badge/build-passing-success?style=flat-square&color=00c805" alt="Build Status" />
-    <img src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square" alt="Version" />
-    <img src="https://img.shields.io/badge/license-MIT-gray?style=flat-square" alt="License" />
-    <img src="https://img.shields.io/badge/typescript-5.0-blue?style=flat-square&logo=typescript" alt="TypeScript" />
-  </p>
-</div>
+**Model Name:** Kibo v2  
+**Model Type:** Career Orchestration Protocol  
+**Publisher:** Kibo Systems Research  
+**Release Date:** 2026
+
+## Abstract
+
+Kibo is a cloud-native, real-time platform designed to quantify and accelerate technical skill acquisition. By integrating gamification mechanics with verified coding environments, Kibo addresses the "verification gap" in technical recruitment. This system leverages a serverless event-driven architecture to provide instantaneous state synchronization, enabling a high-fidelity feedback loop between user action and skill accreditation.
+
+We are releasing **Kibo v2** to explore the intersection of psychoacoustic feedback, gamified incentives, and rigorous assessment standards.
 
 ---
 
-**Kibo** is a production-grade, full-stack career acceleration engine designed to optimize the technical recruitment lifecycle for software engineers. It integrates gamification mechanics with real-time analytics to drive consistent productivity, skill acquisition, and pipeline management.
+## 1. System Capabilities
 
-Built with performance, scalability, and type safety as core tenets, Kibo leverages a modern event-driven architecture to deliver instantaneous state synchronization across distributed clients.
+Kibo v2 introduces several novel capabilities distinguishing it from traditional learning management systems (LMS):
 
-## ⚡️ Key Components
+### 1.1 Real-time State Synchronization
+Utilizing PostgreSQL logical replication (via Supabase Realtime), Kibo achieves sub-100ms latency for state propagation across distributed clients. This enables:
+- **Live Leaderboards:** Instantaneous ranking updates based on XP ingress.
+- **Collaborative Presence:** Real-time user visibility and activity tracking.
 
-### Core Engine
-*   **Real-time Event Bus:** Powered by PostgreSQL logical replication (Supabase Realtime) to synchronize state across clients with sub-100ms latency.
-*   **Optimistic Mutation Layer:** Custom hooks and TanStack Query configuration ensure immediate UI feedback before server confirmation.
-*   **Gamification Protocol:** Rules engine handling XP distribution, streak calculations, and achievement unlocking based on user events.
+### 1.2 Gamification-as-Verification
+We propose a model where engagement metrics serve as a proxy for verified productivity.
+- **The Garden:** A contribution graph visualizing sustained effort over time.
+- **StatsHUD:** A 3D-rendered, gamified dashboard providing immediate visual reinforcement of streaks and leveling progress.
 
-### Mission Control
-*   **Analytics Dashboard:** High-performance data visualization using Recharts for trend analysis (Applications, Problems Solved, XP).
-*   **Global Leaderboard:** Live ranking system with efficient pagination and tiered aggregation.
-*   **The Garden:** GitHub-style activity contribution graph for visualizing momentum and consistency.
+### 1.3 Certified Assessment Engine
+The platform includes a proctored-grade exam environment features:
+- **Adaptive Audio Feedback:** Context-aware soundscapes (e.g., silent coding modes vs. audible confirmations) to minimize cognitive load.
+- **Premium Identity:** Verifiable digital credentials presented via a high-end glassmorphism interface.
 
-## 🏗 Architecture
+## 2. Technical Architecture
 
-Kibo follows a modular, component-driven architecture emphasizing separation of concerns and type integrity.
+Kibo leverages a modern stack optimized for type safety and performance.
+
+| Component | Specification |
+|-----------|---------------|
+| **Frontend Runtime** | React 18 / Vite |
+| **State Primitives** | TanStack Query / Context API |
+| **Backend Service** | Supabase (PostgreSQL 15 + Edge Functions) |
+| **Styling Engine** | Tailwind CSS + Shadcn UI |
+| **Protocol** | WebSocket (Realtime) + REST |
 
 ```mermaid
-graph TD
-    Client[Client (React/Vite)] --> |REST/RPC| Edge[Supabase Edge Network]
-    Client --> |WebSocket| Realtime[Realtime Cluster]
-    Edge --> DB[(PostgreSQL)]
-    Realtime -- Listen --> DB
-    Client --> Auth[Auth Service]
+graph LR
+    A[User Action] --> B(Optimistic UI Update)
+    B --> C{Event Bus}
+    C -->|WebSocket| D[Realtime Cluster]
+    C -->|RPC| E[PostgreSQL DB]
+    D --> F[Connected Clients]
+    E --> F
 ```
 
-### Technology Stack
+## 3. Usage & Deployment
 
-| Layer | Technology | Rationale |
-|-------|------------|-----------|
-| **Frontend** | React 18, TypeScript | Component modularity and static type safety. |
-| **Build System** | Vite | High-performance dev server and optimized HMR. |
-| **State** | TanStack Query | Server-state management, caching, and optimistic UI. |
-| **Database** | PostgreSQL | Relational integrity and JSONB capabilities. |
-| **Realtime** | Supabase Realtime | WebSocket subscriptions for CDC (Change Data Capture). |
-| **Styling** | TailwindCSS + Shadcn | Utility-first, accessible design system. |
+### Locals
+To run the research preview locally:
 
-## 🚀 Getting Started
+```bash
+git clone https://github.com/Cyrax321/kibo-v6.git
+npm install
+npm run dev
+```
 
-### Prerequisites
+### Environment
+Requires a connected Supabase instance with the following schema access:
+- `auth.users`
+- `public.profiles` (RLS enabled)
+- `public.achievements`
 
-*   Node.js v18.0.0+
-*   npm v9.0.0+
+## 4. Limitations & Safety
 
-### Installation
+- **Verification Scope:** Current skill verification is limited to algorithmic problem solving and multiple-choice constraints.
+- **Device Support:** 3D HUD elements require WebGL-capable devices; fallback modes are available for low-power contexts.
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/Cyrax321/KIBO-v0.git
-    cd KIBO-v0
-    ```
+## 5. Citation
 
-2.  **Install dependencies**
-    ```bash
-    npm ci
-    ```
+If you use Kibo in your research or recruitment pipelines, please cite:
 
-3.  **Environment Configuration**
-    Copy the example environment file and configure your credentials.
-    ```bash
-    cp .env.example .env
-    ```
-
-4.  **Start the development server**
-    ```bash
-    npm run dev
-    ```
-
-## 🤝 Contributing
-
-We welcome contributions from the community. Please read our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a Pull Request.
-
-### Development Standards
-*   **Commits:** Follow conventional commits specification.
-*   **Linting:** ESLint + Prettier configuration is enforced.
-*   **Testing:** Vitest for unit/integration tests.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Copyright © 2026 Kibo Systems. All specific rights reserved.
+```bibtex
+@software{kibo2026,
+  author = {Kibo Systems Research},
+  title = {Kibo: A Protocol for Verified Skill Acquisition},
+  year = {2026},
+  url = {https://github.com/Cyrax321/kibo-v6}
+}
+```
