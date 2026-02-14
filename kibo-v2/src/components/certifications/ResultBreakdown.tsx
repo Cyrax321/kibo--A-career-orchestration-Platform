@@ -21,7 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useRef, useEffect } from "react";
 import type { ExamResult, MCQFeedback } from "@/components/certifications/types";
+import { playSound } from "@/lib/sounds";
 
 const sectionIcons: Record<string, React.ReactNode> = {
     mcq: <BookOpen className="h-4 w-4" />,
@@ -46,6 +48,18 @@ export default function ResultBreakdown() {
         }
         return null;
     }, [location.state, certId, attemptId]);
+
+    // Play sound on mount
+    React.useEffect(() => {
+        if (result) {
+            if (result.passed) {
+                // Delay slightly for the animation
+                setTimeout(() => playSound("achievement"), 500);
+            } else {
+                setTimeout(() => playSound("notification"), 500);
+            }
+        }
+    }, [result]);
 
     if (!result) {
         return (

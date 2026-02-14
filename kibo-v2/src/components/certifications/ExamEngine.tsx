@@ -36,6 +36,7 @@ import type {
     DebuggingQuestion,
 } from "@/components/certifications/types";
 import type { ExamQuestionSet } from "@/data/certQuestionBank";
+import { playSound } from "@/lib/sounds";
 
 // ─── Section type definition ────────────────────────────────────────────────
 
@@ -125,6 +126,7 @@ export default function ExamEngine() {
 
         setShowIntro(false);
         setExamStarted(true);
+        playSound("applicationAdded");
     }, [certId, startExam, loadAnswers]);
 
     // ── Timer ──
@@ -238,6 +240,8 @@ export default function ExamEngine() {
                 next.set(questionId, { ...existing, ...partial });
                 return next;
             });
+            // Subtle click sound for answering
+            playSound("like", { volume: 0.3 });
         },
         []
     );
@@ -258,6 +262,7 @@ export default function ExamEngine() {
             );
 
             if (result) {
+                playSound("success");
                 navigate(`/certifications/${certId}/result/${attemptId}`, {
                     state: { result },
                 });
@@ -456,6 +461,7 @@ export default function ExamEngine() {
                                 onClick={() => {
                                     setCurrentSection(s.key);
                                     setCurrentQuestionIndex(0);
+                                    playSound("messageSent", { volume: 0.2 });
                                 }}
                                 className={cn(
                                     "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
@@ -519,7 +525,10 @@ export default function ExamEngine() {
                         return (
                             <button
                                 key={q.id}
-                                onClick={() => setCurrentQuestionIndex(idx)}
+                                onClick={() => {
+                                    setCurrentQuestionIndex(idx);
+                                    playSound("messageSent", { volume: 0.1 });
+                                }}
                                 className={cn(
                                     "w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all",
                                     idx === currentQuestionIndex
@@ -585,6 +594,7 @@ export default function ExamEngine() {
                     onClick={() => {
                         if (currentQuestionIndex > 0) {
                             setCurrentQuestionIndex((i) => i - 1);
+                            playSound("messageSent", { volume: 0.2 });
                         } else {
                             // Go to previous section
                             const sectionIdx = sections.findIndex(
@@ -613,6 +623,7 @@ export default function ExamEngine() {
                     onClick={() => {
                         if (currentQuestionIndex < currentQuestions.length - 1) {
                             setCurrentQuestionIndex((i) => i + 1);
+                            playSound("messageSent", { volume: 0.2 });
                         } else {
                             // Go to next section
                             const sectionIdx = sections.findIndex(
@@ -668,7 +679,7 @@ export default function ExamEngine() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }
 

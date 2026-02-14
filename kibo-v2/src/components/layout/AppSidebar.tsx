@@ -30,6 +30,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { playSound } from "@/lib/sounds";
 
 const mainNavItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -119,6 +120,7 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.url}
+                      onClick={() => playSound("messageSent", { volume: 0.15 })}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-white/60 hover:text-foreground",
                         isActive(item.url) && "bg-white/60 text-foreground font-medium"
@@ -152,6 +154,7 @@ export function AppSidebar() {
                   >
                     <NavLink
                       to={item.url}
+                      onClick={() => playSound("messageSent", { volume: 0.15 })}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-white/60 hover:text-foreground",
                         isActive(item.url) && "bg-white/60 text-foreground font-medium"
@@ -180,6 +183,7 @@ export function AppSidebar() {
               >
                 <NavLink
                   to={item.url}
+                  onClick={() => playSound("messageSent", { volume: 0.15 })}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-white/60 hover:text-foreground",
                     isActive(item.url) && "bg-white/60 text-foreground font-medium"
