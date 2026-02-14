@@ -37,7 +37,7 @@ function gradeExamLocally(
     const mcqFeedback: MCQFeedback[] = questions.mcqs.map((q) => {
         const answer = answerMap.get(q.id);
         const selectedOption = answer?.selected_option ?? -1;
-        const correctOption = (q as any)._correctIndex ?? 0;
+        const correctOption = (q as any)._correctIndex ?? 0; // eslint-disable-line @typescript-eslint/no-explicit-any
         const isCorrect = selectedOption === correctOption;
         if (isCorrect) mcqEarned += q.marks;
         return {

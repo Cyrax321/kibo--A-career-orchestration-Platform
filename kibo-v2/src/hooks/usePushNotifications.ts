@@ -6,7 +6,7 @@ interface PushNotificationOptions {
   body: string;
   icon?: string;
   tag?: string;
-  data?: Record<string, any>;
+  data?: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export const usePushNotifications = () => {

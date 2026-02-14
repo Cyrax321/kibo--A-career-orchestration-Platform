@@ -27,12 +27,91 @@ export const QuizMode: React.FC<QuizModeProps> = ({ quiz, onComplete, onExit }) 
   const [tabSwitchCount, setTabSwitchCount] = React.useState(0);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+
+  const handleSubmit = React.useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    // Calculate results
+    let correct = 0;
+    const questionResults: Record<string, { selected: number; correct: number; isCorrect: boolean }> = {};
+
+    quiz.questions.forEach((q) => {
+      const selectedAnswer = answers[q.id];
+      const isCorrect = selectedAnswer === q.correctIndex;
+      if (isCorrect) correct++;
+
+      questionResults[q.id] = {
+        selected: selectedAnswer ?? -1,
+        correct: q.correctIndex,
+        isCorrect,
+      };
+    });
+
+    const score = Math.round((correct / quiz.questions.length) * 100);
+    const passed = score >= 70;
+    const xpBase = quiz.difficulty === "easy" ? 50 : quiz.difficulty === "medium" ? 100 : 150;
+    const xpEarned = passed ? xpBase + Math.floor(score / 10) * 10 : Math.floor(score / 10) * 5;
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+
+    // Save to database
+    let attemptId = "";
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data, error } = await supabase
+          .from("quiz_attempts" as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+          .insert({
+            user_id: session.user.id,
+            quiz_id: quiz.id,
+            quiz_title: quiz.title,
+            quiz_topic: quiz.topic,
+            score,
+            total_questions: quiz.questions.length,
+            correct_answers: correct,
+            passed,
+            answers: questionResults,
+            xp_earned: xpEarned,
+            time_taken_seconds: timeTaken,
+            completed_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+
+        if (data) {
+          attemptId = (data as unknown as { id: string }).id;
+        }
+        if (error) {
+          console.error("Failed to save quiz attempt:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving quiz attempt:", error);
+    }
+
+    onComplete({
+      passed,
+      score,
+      correct,
+      total: quiz.questions.length,
+      xpEarned,
+      attemptId,
+    });
+
+  }, [isSubmitting, quiz, answers, startTime, onComplete]);
+
+  // Use a ref to access the latest handleSubmit without triggering effect re-runs
+  const handleSubmitRef = React.useRef(handleSubmit);
+  React.useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
+
   React.useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit();
+          handleSubmitRef.current();
           return 0;
         }
         return prev - 1;
@@ -81,76 +160,7 @@ export const QuizMode: React.FC<QuizModeProps> = ({ quiz, onComplete, onExit }) 
     }
   };
 
-  const handleSubmit = async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
 
-    // Calculate results
-    let correct = 0;
-    const questionResults: Record<string, { selected: number; correct: number; isCorrect: boolean }> = {};
-    
-    quiz.questions.forEach((q) => {
-      const selectedAnswer = answers[q.id];
-      const isCorrect = selectedAnswer === q.correctIndex;
-      if (isCorrect) correct++;
-      
-      questionResults[q.id] = {
-        selected: selectedAnswer ?? -1,
-        correct: q.correctIndex,
-        isCorrect,
-      };
-    });
-
-    const score = Math.round((correct / quiz.questions.length) * 100);
-    const passed = score >= 70;
-    const xpBase = quiz.difficulty === "easy" ? 50 : quiz.difficulty === "medium" ? 100 : 150;
-    const xpEarned = passed ? xpBase + Math.floor(score / 10) * 10 : Math.floor(score / 10) * 5;
-    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
-
-    // Save to database
-    let attemptId = "";
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data, error } = await supabase
-          .from("quiz_attempts")
-          .insert({
-            user_id: session.user.id,
-            quiz_id: quiz.id,
-            quiz_title: quiz.title,
-            quiz_topic: quiz.topic,
-            score,
-            total_questions: quiz.questions.length,
-            correct_answers: correct,
-            passed,
-            answers: questionResults,
-            xp_earned: xpEarned,
-            time_taken_seconds: timeTaken,
-            completed_at: new Date().toISOString(),
-          })
-          .select("id")
-          .single();
-
-        if (data) {
-          attemptId = data.id;
-        }
-        if (error) {
-          console.error("Failed to save quiz attempt:", error);
-        }
-      }
-    } catch (error) {
-      console.error("Error saving quiz attempt:", error);
-    }
-
-    onComplete({
-      passed,
-      score,
-      correct,
-      total: quiz.questions.length,
-      xpEarned,
-      attemptId,
-    });
-  };
 
   return (
     <div className="fixed inset-0 bg-background z-50 flex flex-col">
@@ -163,7 +173,7 @@ export const QuizMode: React.FC<QuizModeProps> = ({ quiz, onComplete, onExit }) 
               Tab Switch Detected ({tabSwitchCount})
             </DialogTitle>
             <DialogDescription>
-              Switching tabs during a quiz is monitored. This has been recorded. 
+              Switching tabs during a quiz is monitored. This has been recorded.
               Multiple tab switches may affect your score in real assessments.
             </DialogDescription>
           </DialogHeader>
@@ -204,8 +214,8 @@ export const QuizMode: React.FC<QuizModeProps> = ({ quiz, onComplete, onExit }) 
           )}
           <div className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-full font-mono font-bold",
-            timeLeft < 60 ? "bg-destructive/10 text-destructive" : 
-            timeLeft < 180 ? "bg-warning/10 text-warning" : "bg-muted"
+            timeLeft < 60 ? "bg-destructive/10 text-destructive" :
+              timeLeft < 180 ? "bg-warning/10 text-warning" : "bg-muted"
           )}>
             <Clock className="h-4 w-4" />
             {formatTime(timeLeft)}
@@ -298,8 +308,8 @@ export const QuizMode: React.FC<QuizModeProps> = ({ quiz, onComplete, onExit }) 
                     currentQuestion === i
                       ? "bg-primary text-primary-foreground"
                       : answers[q.id] !== undefined
-                      ? "bg-success/20 text-success"
-                      : "bg-muted hover:bg-muted/80"
+                        ? "bg-success/20 text-success"
+                        : "bg-muted hover:bg-muted/80"
                   )}
                 >
                   {i + 1}

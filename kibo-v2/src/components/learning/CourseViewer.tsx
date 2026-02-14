@@ -15,8 +15,8 @@ import { playSound } from "@/lib/sounds";
 // Pyodide Type Definition (Simplified)
 declare global {
     interface Window {
-        loadPyodide: (config: { indexURL: string }) => Promise<any>;
-        pyodide: any;
+        loadPyodide: (config: { indexURL: string }) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+        pyodide: any; // eslint-disable-line @typescript-eslint/no-explicit-any
     }
 }
 
@@ -25,12 +25,12 @@ interface CourseViewerProps {
 }
 
 const MarkdownRenderer = ({ content }: { content: string }) => {
-    const parts = content.split(/(\`\`\`python[\s\S]*?\`\`\`)/g);
+    const parts = content.split(/(`{3}python[\s\S]*?`{3})/g);
 
     const renderInline = (text: string) => {
         // Split by **bold** first, then map to handle `code` inside non-bold parts (or vice versa, but usually they don't nest in this simple parser)
         // Actually, simple regex split for both:
-        const segments = text.split(/(\*\*.*?\*\*|\`.*?\`)/g);
+        const segments = text.split(/(\*\*.*?\*\*|`.*?`)/g);
         return segments.map((segment, i) => {
             if (segment.startsWith("**") && segment.endsWith("**")) {
                 return <strong key={i} className="font-bold text-foreground">{segment.slice(2, -2)}</strong>;
@@ -46,7 +46,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
         <div className="space-y-4 text-foreground/90 leading-relaxed">
             {parts.map((part, index) => {
                 if (part.startsWith('```python')) {
-                    const code = part.replace(/^```python\n/, "").replace(/\n```$/, "");
+                    const code = part.replace(/^`{3}python\n/, "").replace(/\n`{3}$/, "");
                     return (
                         <div key={index} className="my-6 rounded-lg border border-primary/20 bg-muted/30 overflow-hidden shadow-sm">
                             <div className="flex items-center justify-between px-4 py-2 border-b border-primary/10 bg-primary/5">
@@ -137,14 +137,8 @@ export const CourseViewer: React.FC<CourseViewerProps> = ({ course }) => {
         if (!userId) return;
 
         const loadProgress = async () => {
-            const data = await getCourseProgress(userId, course.id);
+            const data = await getCourseProgress(userId); // Removed course.id
             if (data) {
-                // Merge or overwrite? Let's overwrite local with server if server has data
-                // But if local has MORE progress, maybe we should sync up?
-                // For simplicity, let's assume server is truth source if it exists.
-                // Or better: union of local and server for completed lessons?
-
-                // Let's just trust valid server data.
                 if (data.completed_lessons && data.completed_lessons.length > 0) {
                     setCompletedLessons(prev => {
                         const merged = Array.from(new Set([...prev, ...data.completed_lessons]));
@@ -152,13 +146,21 @@ export const CourseViewer: React.FC<CourseViewerProps> = ({ course }) => {
                     });
                 }
 
-                if (data.unlocked_hints) {
-                    setUnlockedHints(prev => ({ ...prev, ...data.unlocked_hints }));
+                if (data.unlocked_hints && Array.isArray(data.unlocked_hints)) {
+                    // Parse string[] ["lessonId:count"] back to Record
+                    const parsedHints: Record<string, number> = {};
+                    data.unlocked_hints.forEach(hintStr => {
+                        const [lessonId, count] = hintStr.split(":");
+                        if (lessonId && count) {
+                            parsedHints[lessonId] = parseInt(count, 10);
+                        }
+                    });
+                    setUnlockedHints(prev => ({ ...prev, ...parsedHints }));
                 }
             }
         };
         loadProgress();
-    }, [userId, course.id]);
+    }, [userId]); // Removed course.id dependency as it's not used in fetch anymore
 
     const [output, setOutput] = React.useState<string[]>([]);
     const [isRunning, setIsRunning] = React.useState(false);
@@ -217,16 +219,19 @@ export const CourseViewer: React.FC<CourseViewerProps> = ({ course }) => {
     React.useEffect(() => {
         localStorage.setItem("kibo_completed_lessons", JSON.stringify(completedLessons));
         if (userId) {
-            saveCourseProgress(userId, course.id, completedLessons, unlockedHints);
+            // Serialize Record to string[]
+            const hintsArray = Object.entries(unlockedHints).map(([k, v]) => `${k}:${v}`);
+            saveCourseProgress(userId, completedLessons, hintsArray);
         }
-    }, [completedLessons, userId, course.id]);
+    }, [completedLessons, userId, unlockedHints]);
 
     React.useEffect(() => {
         localStorage.setItem("kibo_unlocked_hints", JSON.stringify(unlockedHints));
         if (userId) {
-            saveCourseProgress(userId, course.id, completedLessons, unlockedHints);
+            const hintsArray = Object.entries(unlockedHints).map(([k, v]) => `${k}:${v}`);
+            saveCourseProgress(userId, completedLessons, hintsArray);
         }
-    }, [unlockedHints, userId, course.id]);
+    }, [unlockedHints, userId, completedLessons]);
 
     // Reset state on lesson change
     React.useEffect(() => {
@@ -279,7 +284,7 @@ export const CourseViewer: React.FC<CourseViewerProps> = ({ course }) => {
         try {
             window.pyodide.setStdout({ batched: (msg: string) => setOutput(prev => [...prev, msg]) });
             await window.pyodide.runPythonAsync(codeToRun);
-        } catch (error: any) {
+        } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             setOutput(prev => [...prev, `Error: ${error.message}`]);
         } finally {
             setIsRunning(false);

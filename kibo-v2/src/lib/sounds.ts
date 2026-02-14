@@ -225,26 +225,51 @@ const playSuccess = (volume: number): void => {
   createChime(ctx, [523.25, 783.99], [0.1, 0.2], volume);
 };
 
-// Like - subtle pop
+// Like/Select - Duolingo-style bright bubble pop
 const playLike = (volume: number): void => {
   const ctx = getAudioContext();
 
-  const oscillator = ctx.createOscillator();
-  const gainNode = ctx.createGain();
+  // Fundamental frequency (the "pop")
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
 
-  oscillator.connect(gainNode);
-  gainNode.connect(ctx.destination);
+  // Overtone for brightness
+  const osc2 = ctx.createOscillator();
+  const gain2 = ctx.createGain();
 
-  oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(600, ctx.currentTime);
-  oscillator.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.05);
-  oscillator.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.1);
+  osc1.connect(gain1);
+  gain1.connect(ctx.destination);
 
-  gainNode.gain.setValueAtTime(volume * 0.4, ctx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+  osc2.connect(gain2);
+  gain2.connect(ctx.destination);
 
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + 0.12);
+  // Main Pop: 500Hz -> 900Hz (Snappy rise)
+  osc1.type = "sine";
+  osc1.frequency.setValueAtTime(500, ctx.currentTime);
+  osc1.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.08);
+
+  // Overtone: 1000Hz -> 1800Hz (Adds crispness)
+  osc2.type = "sine";
+  osc2.frequency.setValueAtTime(1000, ctx.currentTime);
+  osc2.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.08);
+
+  // Envelope: Detailed attack/decay
+  const now = ctx.currentTime;
+
+  // Fundamental envelope
+  gain1.gain.setValueAtTime(0, now);
+  gain1.gain.linearRampToValueAtTime(volume * 0.8, now + 0.01);
+  gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+  // Overtone envelope (softer)
+  gain2.gain.setValueAtTime(0, now);
+  gain2.gain.linearRampToValueAtTime(volume * 0.3, now + 0.01);
+  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+  osc1.start(now);
+  osc1.stop(now + 0.15);
+  osc2.start(now);
+  osc2.stop(now + 0.15);
 };
 
 // Comment - soft notification
@@ -445,7 +470,7 @@ export const initSoundSystem = (): void => {
 
 // Check if sounds are supported
 export const isSoundSupported = (): boolean => {
-  return typeof AudioContext !== "undefined" || typeof (window as any).webkitAudioContext !== "undefined";
+  return typeof AudioContext !== "undefined" || typeof (window as any).webkitAudioContext !== "undefined"; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export type { SoundType, SoundConfig };

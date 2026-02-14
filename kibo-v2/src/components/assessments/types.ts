@@ -34,3 +34,19 @@ export interface QuizResult {
   total: number;
   xpEarned: number;
 }
+
+export interface QuizAttempt {
+  id: string;
+  user_id: string;
+  quiz_id: string;
+  quiz_title: string;
+  quiz_topic: string;
+  score: number;
+  total_questions: number;
+  correct_answers: number;
+  passed: boolean;
+  answers: Record<string, string> | null;
+  xp_earned: number;
+  time_taken_seconds: number;
+  completed_at: string;
+}

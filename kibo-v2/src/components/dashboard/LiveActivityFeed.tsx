@@ -67,7 +67,7 @@ export const LiveActivityFeed: React.FC<LiveActivityFeedProps> = ({ userId }) =>
 
         const allActivities: ActivityItem[] = [];
 
-        submissions?.forEach((sub: any) => {
+        submissions?.forEach((sub: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `sub-${sub.id}`,
             type: "problem",
@@ -77,7 +77,7 @@ export const LiveActivityFeed: React.FC<LiveActivityFeedProps> = ({ userId }) =>
           });
         });
 
-        applications?.forEach((app: any) => {
+        applications?.forEach((app: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `app-${app.id}`,
             type: "application",
@@ -87,7 +87,7 @@ export const LiveActivityFeed: React.FC<LiveActivityFeedProps> = ({ userId }) =>
           });
         });
 
-        achievements?.forEach((ach: any) => {
+        achievements?.forEach((ach: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `ach-${ach.id}`,
             type: "achievement",
@@ -174,11 +174,11 @@ export const LiveActivityFeed: React.FC<LiveActivityFeedProps> = ({ userId }) =>
                   initial={{ opacity: 0, x: -20, scale: 0.95 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={{ opacity: 0, x: 20, scale: 0.95 }}
-                  transition={{ 
+                  transition={{
                     type: "spring",
                     stiffness: 500,
                     damping: 30,
-                    delay: index * 0.05 
+                    delay: index * 0.05
                   }}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30 transition-colors"
                 >

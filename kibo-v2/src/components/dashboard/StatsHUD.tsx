@@ -138,59 +138,95 @@ export const StatsHUD: React.FC<StatsHUDProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
-                  whileHover={{ scale: 1.02 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.1 + index * 0.1, type: "spring" }}
+                  whileHover={{ scale: 1.02, y: -2 }}
                   className={cn(
-                    "relative overflow-hidden rounded-2xl border bg-card/80 backdrop-blur-xl p-5 shadow-sm transition-shadow hover:shadow-md",
-                    stat.borderColor
+                    "relative overflow-hidden rounded-2xl border-2 p-5 shadow-lg transition-all duration-300 group",
+                    // Dynamic border and background based on stat type
+                    stat.label === "Day Streak" && "border-orange-500/20 bg-gradient-to-br from-orange-500/10 via-amber-500/5 to-transparent hover:border-orange-500/40 hover:shadow-orange-500/10",
+                    stat.label === "Level" && "border-violet-500/20 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent hover:border-violet-500/40 hover:shadow-violet-500/10",
+                    stat.label === "Experience" && "border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-transparent hover:border-emerald-500/40 hover:shadow-emerald-500/10"
                   )}
                 >
-                  <div className="flex items-start justify-between">
+                  {/* Glassy Overlay / Shine Effect */}
+                  <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  {/* Decorative Background Blob */}
+                  <div
+                    className={cn(
+                      "absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl opacity-20",
+                      stat.label === "Day Streak" && "bg-orange-500",
+                      stat.label === "Level" && "bg-violet-500",
+                      stat.label === "Experience" && "bg-emerald-500"
+                    )}
+                  />
+
+                  <div className="relative flex items-center justify-between z-10">
                     <div className="space-y-1">
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <p className="text-[11px] font-bold uppercase tracking-widest opacity-60">
                         {stat.label}
                       </p>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className={cn("text-2xl font-bold", stat.color)}>
+                      <div className="flex items-baseline gap-2">
+                        <span className={cn(
+                          "text-3xl font-black tracking-tight",
+                          stat.label === "Day Streak" && "text-orange-500",
+                          stat.label === "Level" && "text-violet-500",
+                          stat.label === "Experience" && "text-emerald-500"
+                        )}>
                           {stat.value}
                         </span>
-                        <span className="text-sm text-muted-foreground">{stat.suffix}</span>
+                        <span className="text-sm font-medium text-muted-foreground/80">{stat.suffix}</span>
                       </div>
                     </div>
-                    <div className={cn("rounded-xl p-2", stat.bgColor)}>
-                      {/* Render 3D icon if available, else fallback to Lucide */}
+
+                    {/* Icon Container */}
+                    <div className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-xl shadow-inner ring-1 ring-inset",
+                      stat.label === "Day Streak" && "bg-orange-500/10 ring-orange-500/20",
+                      stat.label === "Level" && "bg-violet-500/10 ring-violet-500/20",
+                      stat.label === "Experience" && "bg-emerald-500/10 ring-emerald-500/20"
+                    )}>
                       {stat.image ? (
                         <img
                           src={stat.image}
                           alt={stat.label}
-                          className="h-8 w-8 object-contain drop-shadow-sm"
+                          className="h-8 w-8 object-contain drop-shadow-md transition-transform group-hover:scale-110"
                         />
                       ) : (
-                        <stat.icon className={cn("h-5 w-5 stroke-[1.5]", stat.color)} />
+                        <stat.icon className={cn(
+                          "h-6 w-6 transition-transform group-hover:scale-110",
+                          stat.label === "Day Streak" && "text-orange-500",
+                          stat.label === "Level" && "text-violet-500",
+                          stat.label === "Experience" && "text-emerald-500"
+                        )} />
                       )}
                     </div>
                   </div>
 
                   {stat.showProgress && (
-                    <div className="mt-4 space-y-1.5">
-                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className="mt-4 space-y-2">
+                      <div className="h-2 rounded-full bg-black/10 dark:bg-white/5 overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${Math.min(stat.progress || 0, 100)}%` }}
-                          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                          className="h-full rounded-full bg-gradient-to-r from-success to-primary"
-                        />
+                          transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-400 relative overflow-hidden"
+                        >
+                          {/* Animated sheen on progress bar */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-full animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+                        </motion.div>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">
-                        {stat.xpInLevel?.toLocaleString()} / {stat.xpNeeded?.toLocaleString()} XP to next level
-                      </p>
+                      <div className="flex justify-between items-center text-[10px] font-medium text-muted-foreground">
+                        <span>Level Progress</span>
+                        <span>{stat.xpInLevel?.toLocaleString()} / {stat.xpNeeded?.toLocaleString()} XP</span>
+                      </div>
                     </div>
                   )}
                 </motion.div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent side="bottom" className="text-xs font-semibold">
                 <p>{stat.tooltip}</p>
               </TooltipContent>
             </Tooltip>

@@ -64,7 +64,7 @@ export const ApplicationReminders: React.FC<ApplicationRemindersProps> = ({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setReminders(parsed.map((r: any) => ({ ...r, date: new Date(r.date) })));
+        setReminders(parsed.map((r: any) => ({ ...r, date: new Date(r.date) }))); // eslint-disable-line @typescript-eslint/no-explicit-any
       } catch (e) {
         console.error("Failed to parse reminders:", e);
       }
@@ -86,7 +86,7 @@ export const ApplicationReminders: React.FC<ApplicationRemindersProps> = ({
     if (!app) return;
 
     const reminderDate = new Date(`${newReminder.date}T${newReminder.time}`);
-    
+
     const reminder: Reminder = {
       id: Date.now().toString(),
       applicationId: newReminder.applicationId,
@@ -97,7 +97,7 @@ export const ApplicationReminders: React.FC<ApplicationRemindersProps> = ({
     };
 
     setReminders(prev => [...prev, reminder]);
-    
+
     // Schedule push notification
     if (isEnabled) {
       scheduleReminder(`${app.company}: ${newReminder.title}`, reminderDate, 15);
@@ -191,7 +191,7 @@ export const ApplicationReminders: React.FC<ApplicationRemindersProps> = ({
                   <Label>Type</Label>
                   <Select
                     value={newReminder.type}
-                    onValueChange={(v) => setNewReminder({ ...newReminder, type: v as any })}
+                    onValueChange={(v) => setNewReminder({ ...newReminder, type: v as any })} // eslint-disable-line @typescript-eslint/no-explicit-any
                   >
                     <SelectTrigger>
                       <SelectValue />

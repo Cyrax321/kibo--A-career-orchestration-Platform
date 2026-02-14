@@ -2,12 +2,12 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { 
-  Code2, 
-  FileText, 
-  Trophy, 
-  Briefcase, 
-  CheckCircle2, 
+import {
+  Code2,
+  FileText,
+  Trophy,
+  Briefcase,
+  CheckCircle2,
   Clock,
   Zap,
   Target,
@@ -24,7 +24,7 @@ interface ActivityItem {
   description?: string;
   xp?: number;
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 interface ActivityHistoryProps {
@@ -73,7 +73,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
           .eq("status", "accepted")
           .order("created_at", { ascending: false })
           .limit(10),
-        
+
         // Assessment attempts
         supabase
           .from("assessment_attempts")
@@ -82,7 +82,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
           .not("completed_at", "is", null)
           .order("created_at", { ascending: false })
           .limit(10),
-        
+
         // Applications
         supabase
           .from("applications")
@@ -90,7 +90,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
           .limit(10),
-        
+
         // Achievements
         supabase
           .from("user_achievements")
@@ -98,9 +98,9 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
           .eq("user_id", userId)
           .order("unlocked_at", { ascending: false })
           .limit(10),
-        
+
         // Completed tasks
-        supabase
+        (supabase as any) // eslint-disable-line @typescript-eslint/no-explicit-any
           .from("daily_tasks")
           .select("id, completed_at, title, xp_reward")
           .eq("user_id", userId)
@@ -113,7 +113,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
 
       // Process submissions
       if (submissionsRes.data) {
-        submissionsRes.data.forEach((sub: any) => {
+        submissionsRes.data.forEach((sub: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `sub-${sub.id}`,
             type: "problem",
@@ -127,7 +127,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
 
       // Process assessment attempts
       if (assessmentAttemptsRes.data) {
-        assessmentAttemptsRes.data.forEach((attempt: any) => {
+        assessmentAttemptsRes.data.forEach((attempt: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `assess-${attempt.id}`,
             type: "assessment",
@@ -141,7 +141,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
 
       // Process applications
       if (applicationsRes.data) {
-        applicationsRes.data.forEach((app: any) => {
+        applicationsRes.data.forEach((app: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `app-${app.id}`,
             type: "application",
@@ -156,7 +156,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
 
       // Process achievements
       if (achievementsRes.data) {
-        achievementsRes.data.forEach((ach: any) => {
+        achievementsRes.data.forEach((ach: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           allActivities.push({
             id: `ach-${ach.id}`,
             type: "achievement",
@@ -170,7 +170,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
 
       // Process completed tasks
       if (tasksRes.data) {
-        tasksRes.data.forEach((task: any) => {
+        tasksRes.data.forEach((task: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           if (task.completed_at) {
             allActivities.push({
               id: `task-${task.id}`,
@@ -185,7 +185,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ userId }) => {
 
       // Sort by timestamp descending
       allActivities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-      
+
       setActivities(allActivities.slice(0, 20));
     } catch (error) {
       console.error("Error fetching activities:", error);

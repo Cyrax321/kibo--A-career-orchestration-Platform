@@ -166,6 +166,20 @@ const Applications: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("board");
   const [viewMode, setViewMode] = React.useState<"kanban" | "table">("kanban");
 
+  const fetchApplications = React.useCallback(async () => {
+    const { data, error } = await supabase
+      .from("applications")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setApplications(data || []);
+    }
+    setLoading(false);
+  }, [toast]);
+
   React.useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -176,7 +190,7 @@ const Applications: React.FC = () => {
       fetchApplications();
     };
     checkAuth();
-  }, [navigate]);
+  }, [navigate, fetchApplications]);
 
   // Realtime subscription for applications
   React.useEffect(() => {
@@ -216,19 +230,7 @@ const Applications: React.FC = () => {
     setupRealtime();
   }, []);
 
-  const fetchApplications = async () => {
-    const { data, error } = await supabase
-      .from("applications")
-      .select("*")
-      .order("created_at", { ascending: false });
 
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      setApplications(data || []);
-    }
-    setLoading(false);
-  };
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("applications").delete().eq("id", id);

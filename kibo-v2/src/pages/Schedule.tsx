@@ -12,6 +12,7 @@ import {
   startOfWeek, endOfWeek, addWeeks, subWeeks, isToday
 } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { RealtimeChannel } from "@supabase/supabase-js";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -86,7 +87,7 @@ const Schedule: React.FC = () => {
 
   // Realtime subscription - FIXED cleanup pattern
   React.useEffect(() => {
-    let channel: any;
+    let channel: RealtimeChannel;
 
     const setup = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -165,14 +166,15 @@ const Schedule: React.FC = () => {
   // Define fetchEvents with useCallback (needed by realtime subscription)
   const fetchEvents = React.useCallback(async () => {
     const { data, error } = await supabase
-      .from("schedule_events")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .from("schedule_events" as any)
       .select("*")
       .order("event_date", { ascending: true });
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      setEvents(data || []);
+      setEvents(((data as unknown) as ScheduleEvent[]) || []);
     }
     setLoading(false);
   }, [toast]);
@@ -188,7 +190,8 @@ const Schedule: React.FC = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const { data, error } = await supabase.from("schedule_events").insert({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await supabase.from("schedule_events" as any).insert({
       user_id: session.user.id,
       title: newEvent.title,
       description: newEvent.description || null,
@@ -201,7 +204,7 @@ const Schedule: React.FC = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       // Optimistic update - add to local state immediately
-      setEvents((prev) => [...prev, data as ScheduleEvent].sort((a, b) =>
+      setEvents((prev) => [...prev, data as unknown as ScheduleEvent].sort((a, b) =>
         new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
       ));
       toast({ title: "Event Created", description: newEvent.title });
@@ -215,7 +218,8 @@ const Schedule: React.FC = () => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
     setSelectedEvent(null);
 
-    const { error } = await supabase.from("schedule_events").delete().eq("id", id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from("schedule_events" as any).delete().eq("id", id);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       // Revert on error - refetch events
@@ -226,7 +230,8 @@ const Schedule: React.FC = () => {
   };
 
   const handleUpdateEvent = async (id: string, updates: Partial<ScheduleEvent>) => {
-    const { error } = await supabase.from("schedule_events").update(updates).eq("id", id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from("schedule_events" as any).update(updates).eq("id", id);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {

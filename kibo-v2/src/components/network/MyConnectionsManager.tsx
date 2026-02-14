@@ -46,17 +46,18 @@ export const MyConnectionsManager: React.FC<MyConnectionsManagerProps> = ({
   const [loading, setLoading] = React.useState(true);
   const [actionLoading, setActionLoading] = React.useState(false);
 
-  React.useEffect(() => {
-    fetchConnections();
-  }, [currentUserId]);
 
-  const fetchConnections = async () => {
+
+  const fetchConnections = React.useCallback(async () => {
     // Fetch all connections for current user
     const { data: connectionsData } = await supabase
       .from("connections")
       .select("*")
       .or(`requester_id.eq.${currentUserId},receiver_id.eq.${currentUserId}`)
       .order("created_at", { ascending: false });
+
+    // Cast the data to any[] to avoid missing property errors due to outdated types
+    const connections = (connectionsData || []) as any[]; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     if (!connectionsData) {
       setLoading(false);
@@ -65,7 +66,7 @@ export const MyConnectionsManager: React.FC<MyConnectionsManagerProps> = ({
 
     // Get all unique user IDs
     const userIds = new Set<string>();
-    connectionsData.forEach(c => {
+    connections.forEach(c => {
       userIds.add(c.requester_id);
       userIds.add(c.receiver_id);
     });
@@ -82,7 +83,7 @@ export const MyConnectionsManager: React.FC<MyConnectionsManagerProps> = ({
     const sent: Connection[] = [];
     const connected: Connection[] = [];
 
-    connectionsData.forEach(conn => {
+    connections.forEach(conn => { // eslint-disable-line @typescript-eslint/no-explicit-any
       const otherUserId = conn.requester_id === currentUserId ? conn.receiver_id : conn.requester_id;
       const profile = profiles?.find(p => p.user_id === otherUserId);
       const connectionWithProfile = { ...conn, profiles: profile || null };
@@ -102,12 +103,16 @@ export const MyConnectionsManager: React.FC<MyConnectionsManagerProps> = ({
     setPendingSent(sent);
     setAccepted(connected);
     setLoading(false);
-  };
+  }, [currentUserId]);
+
+  React.useEffect(() => {
+    fetchConnections();
+  }, [fetchConnections]);
 
   const handleAccept = async (connectionId: string) => {
     setActionLoading(true);
     const connection = pendingReceived.find(c => c.id === connectionId);
-    
+
     const { error } = await supabase
       .from("connections")
       .update({ status: "connected" })
@@ -248,7 +253,7 @@ export const MyConnectionsManager: React.FC<MyConnectionsManagerProps> = ({
           pendingSent.map((connection) => (
             <Card key={connection.id} className="p-4">
               <div className="flex items-center gap-4">
-                <Avatar 
+                <Avatar
                   className="h-12 w-12 cursor-pointer"
                   onClick={() => navigate(`/profile/${connection.receiver_id}`)}
                 >
@@ -299,14 +304,14 @@ export const MyConnectionsManager: React.FC<MyConnectionsManagerProps> = ({
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {accepted.map((connection) => {
-              const otherUserId = connection.requester_id === currentUserId 
-                ? connection.receiver_id 
+              const otherUserId = connection.requester_id === currentUserId
+                ? connection.receiver_id
                 : connection.requester_id;
-              
+
               return (
                 <Card key={connection.id} className="p-4">
                   <div className="flex items-center gap-3">
-                    <Avatar 
+                    <Avatar
                       className="h-12 w-12 cursor-pointer"
                       onClick={() => navigate(`/profile/${otherUserId}`)}
                     >

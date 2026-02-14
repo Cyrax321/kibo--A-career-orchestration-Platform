@@ -92,14 +92,16 @@ export const TheGarden: React.FC<TheGardenProps> = ({ userId, activities: propAc
         startDate.setDate(startDate.getDate() - 364);
 
         const { data } = await supabase
-          .from("daily_activities")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .from("daily_activities" as any)
           .select("activity_date, xp_earned, problems_solved, applications_sent, assessments_completed")
           .eq("user_id", userId)
           .gte("activity_date", startDate.toISOString().split("T")[0])
           .lte("activity_date", endDate.toISOString().split("T")[0]);
 
         if (data) {
-          const activities: DailyActivity[] = data.map(d => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const activities: DailyActivity[] = (data as any[]).map(d => ({
             date: d.activity_date,
             xp: d.xp_earned,
             problems: d.problems_solved,

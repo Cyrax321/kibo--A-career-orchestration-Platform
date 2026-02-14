@@ -240,8 +240,10 @@ export default function ExamEngine() {
                 next.set(questionId, { ...existing, ...partial });
                 return next;
             });
-            // Subtle click sound for answering
-            playSound("like", { volume: 0.3 });
+            // Subtle click sound for answering (only if not typing code)
+            if (partial.code === undefined) {
+                playSound("like", { volume: 0.3 });
+            }
         },
         []
     );
@@ -279,7 +281,7 @@ export default function ExamEngine() {
     };
 
     // ── Get current questions for section ──
-    const getCurrentQuestions = (): any[] => {
+    const getCurrentQuestions = (): any[] => { // eslint-disable-line @typescript-eslint/no-explicit-any
         if (!questions) return [];
         switch (currentSection) {
             case "mcq":
@@ -520,7 +522,7 @@ export default function ExamEngine() {
             <div className="flex flex-1 overflow-hidden">
                 {/* Left sidebar - question nav */}
                 <div className="w-14 border-r border-border/50 bg-muted/20 flex flex-col items-center py-3 gap-2 overflow-y-auto shrink-0">
-                    {currentQuestions.map((q: any, idx: number) => {
+                    {currentQuestions.map((q: any, idx: number) => { // eslint-disable-line @typescript-eslint/no-explicit-any
                         const answered = answers.has(q.id);
                         return (
                             <button

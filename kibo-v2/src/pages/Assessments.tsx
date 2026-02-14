@@ -21,22 +21,10 @@ import { AssessmentMode } from "@/components/assessments/AssessmentMode";
 import { QuizCard } from "@/components/assessments/QuizCard";
 import { QuizMode } from "@/components/assessments/QuizMode";
 import { ResultDialog } from "@/components/assessments/ResultDialog";
-import { Assessment, Quiz, QuizResult } from "@/components/assessments/types";
+import { Assessment, Quiz, QuizResult, QuizAttempt } from "@/components/assessments/types";
 import { FAANG_QUIZZES, QUIZ_TOPICS } from "@/components/assessments/quizData";
 
-interface QuizAttempt {
-  id: string;
-  quiz_id: string;
-  quiz_title: string;
-  quiz_topic: string;
-  score: number;
-  total_questions: number;
-  correct_answers: number;
-  passed: boolean;
-  xp_earned: number;
-  time_taken_seconds: number | null;
-  completed_at: string;
-}
+
 
 // Demo assessments
 const DEMO_ASSESSMENTS: Assessment[] = [
@@ -125,6 +113,38 @@ const Assessments: React.FC = () => {
     avgScore: 0,
   });
 
+  const fetchQuizHistory = React.useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const { data, error } = await supabase
+        .from("quiz_attempts" as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+        .select("*")
+        .order("completed_at", { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+
+      if (data) {
+        setQuizAttempts(data as unknown as QuizAttempt[]);
+
+        // Calculate stats
+        const attempts = data as unknown as QuizAttempt[];
+        const totalAttempts = attempts.length;
+        const passedCount = attempts.filter((a) => a.passed).length;
+        const totalXPEarned = attempts.reduce((sum, a) => sum + (a.xp_earned || 0), 0);
+        const avgScore = totalAttempts > 0
+          ? Math.round(attempts.reduce((sum, a) => sum + a.score, 0) / totalAttempts)
+          : 0;
+
+        setStats({ totalAttempts, passedCount, totalXPEarned, avgScore });
+      }
+    } catch (error) {
+      console.error("Error fetching quiz history:", error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
   React.useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -135,38 +155,7 @@ const Assessments: React.FC = () => {
       fetchQuizHistory();
     };
     checkAuth();
-  }, [navigate]);
-
-  const fetchQuizHistory = async () => {
-    setLoadingHistory(true);
-    try {
-      const { data, error } = await supabase
-        .from("quiz_attempts")
-        .select("*")
-        .order("completed_at", { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
-
-      if (data) {
-        setQuizAttempts(data);
-
-        // Calculate stats
-        const totalAttempts = data.length;
-        const passedCount = data.filter(a => a.passed).length;
-        const totalXPEarned = data.reduce((sum, a) => sum + (a.xp_earned || 0), 0);
-        const avgScore = totalAttempts > 0
-          ? Math.round(data.reduce((sum, a) => sum + a.score, 0) / totalAttempts)
-          : 0;
-
-        setStats({ totalAttempts, passedCount, totalXPEarned, avgScore });
-      }
-    } catch (error) {
-      console.error("Error fetching quiz history:", error);
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
+  }, [navigate, fetchQuizHistory]);
 
   const filteredQuizzes = selectedTopic === "all"
     ? FAANG_QUIZZES

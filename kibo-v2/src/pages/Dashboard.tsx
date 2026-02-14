@@ -50,8 +50,8 @@ const itemVariants = {
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = React.useState<any>(null);
-  const [profile, setProfile] = React.useState<any>(null);
+  const [user, setUser] = React.useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [profile, setProfile] = React.useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const [loading, setLoading] = React.useState(true);
 
   const { userStats, levelProgress, dailyActivities, levelThresholds, refetchStats } = useGamification();

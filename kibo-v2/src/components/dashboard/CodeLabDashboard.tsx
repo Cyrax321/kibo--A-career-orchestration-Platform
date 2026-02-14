@@ -50,9 +50,9 @@ export const CodeLabDashboard: React.FC<CodeLabDashboardProps> = ({ userId }) =>
 
             if (countError) throw countError;
 
-            const easy = solved?.filter((s: any) => s.coding_problems?.difficulty === "easy").length || 0;
-            const medium = solved?.filter((s: any) => s.coding_problems?.difficulty === "medium").length || 0;
-            const hard = solved?.filter((s: any) => s.coding_problems?.difficulty === "hard").length || 0;
+            const easy = solved?.filter((s: any) => s.coding_problems?.difficulty === "easy").length || 0; // eslint-disable-line @typescript-eslint/no-explicit-any
+            const medium = solved?.filter((s: any) => s.coding_problems?.difficulty === "medium").length || 0; // eslint-disable-line @typescript-eslint/no-explicit-any
+            const hard = solved?.filter((s: any) => s.coding_problems?.difficulty === "hard").length || 0; // eslint-disable-line @typescript-eslint/no-explicit-any
             const totalSolved = solved?.length || 0;
 
             setStats({

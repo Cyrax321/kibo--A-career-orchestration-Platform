@@ -89,7 +89,7 @@ export const NotificationBell: React.FC = () => {
         },
         async (payload) => {
           const newNotification = payload.new as Notification;
-          
+
           // Fetch from_user profile
           if (newNotification.from_user_id) {
             const { data: profile } = await supabase
@@ -97,16 +97,16 @@ export const NotificationBell: React.FC = () => {
               .select("full_name, avatar_url")
               .eq("user_id", newNotification.from_user_id)
               .single();
-            
+
             newNotification.from_user = profile || undefined;
           }
-          
+
           setNotifications(prev => [newNotification, ...prev]);
-          
+
           // Play appropriate sound based on notification type
           const soundType = getNotificationSoundType(newNotification.type);
-          playSound(soundType as any);
-          
+          playSound(soundType as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+
           // Show toast
           toast({
             title: newNotification.title,
@@ -132,7 +132,7 @@ export const NotificationBell: React.FC = () => {
     if (data && data.length > 0) {
       // Fetch profiles for from_user_ids
       const fromUserIds = [...new Set(data.map(n => n.from_user_id).filter(Boolean))] as string[];
-      
+
       if (fromUserIds.length > 0) {
         const { data: profiles } = await supabase
           .from("profiles")
@@ -143,7 +143,7 @@ export const NotificationBell: React.FC = () => {
           ...n,
           from_user: profiles?.find(p => p.user_id === n.from_user_id) || undefined,
         }));
-        
+
         setNotifications(notificationsWithProfiles);
       } else {
         setNotifications(data);
@@ -164,7 +164,7 @@ export const NotificationBell: React.FC = () => {
 
   const markAllAsRead = async () => {
     if (!currentUserId) return;
-    
+
     await supabase
       .from("notifications")
       .update({ is_read: true })
@@ -265,7 +265,7 @@ export const NotificationBell: React.FC = () => {
             </Button>
           )}
         </div>
-        
+
         <ScrollArea className="max-h-[400px]">
           {notifications.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
@@ -286,7 +286,7 @@ export const NotificationBell: React.FC = () => {
                   <Avatar className="h-10 w-10 shrink-0">
                     <AvatarImage src={notification.from_user?.avatar_url || undefined} />
                     <AvatarFallback className="bg-primary/10 text-primary">
-                      {notification.from_user 
+                      {notification.from_user
                         ? getInitials(notification.from_user.full_name)
                         : getNotificationIcon(notification.type)
                       }
@@ -316,7 +316,7 @@ export const NotificationBell: React.FC = () => {
             </div>
           )}
         </ScrollArea>
-        
+
         <div className="p-2 border-t">
           <Button
             variant="ghost"

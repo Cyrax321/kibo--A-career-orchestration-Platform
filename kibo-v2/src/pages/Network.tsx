@@ -64,61 +64,7 @@ const Network: React.FC = () => {
 
   const activeTab = searchParams.get("tab") || "feed";
 
-  React.useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      setCurrentUserId(session.user.id);
-
-      // Fetch user profile
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url, headline")
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (profile) setUserProfile(profile);
-
-      fetchData(session.user.id);
-    };
-    checkAuth();
-  }, [navigate]);
-
-  // Real-time subscription for new posts
-  React.useEffect(() => {
-    const channel = supabase
-      .channel("posts-feed")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "posts",
-        },
-        () => {
-          fetchPosts();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchData = async (userId: string) => {
-    await Promise.all([
-      fetchPosts(),
-      fetchSuggestedUsers(userId),
-      fetchPendingCount(userId),
-    ]);
-    setLoading(false);
-  };
-
-  const fetchPosts = async () => {
+  const fetchPosts = React.useCallback(async () => {
     const { data: postsData } = await supabase
       .from("posts")
       .select("*")
@@ -152,9 +98,9 @@ const Network: React.FC = () => {
 
       setPosts(postsWithProfiles);
     }
-  };
+  }, []);
 
-  const fetchSuggestedUsers = async (userId: string) => {
+  const fetchSuggestedUsers = React.useCallback(async (userId: string) => {
     // Get existing connections
     const { data: connections } = await supabase
       .from("connections")
@@ -178,9 +124,9 @@ const Network: React.FC = () => {
     if (suggestedData) {
       setSuggestedUsers(suggestedData);
     }
-  };
+  }, []);
 
-  const fetchPendingCount = async (userId: string) => {
+  const fetchPendingCount = React.useCallback(async (userId: string) => {
     const { count } = await supabase
       .from("connections")
       .select("id", { count: "exact", head: true })
@@ -188,7 +134,69 @@ const Network: React.FC = () => {
       .eq("status", "pending");
 
     setPendingCount(count || 0);
-  };
+  }, []);
+
+  const fetchData = React.useCallback(async (userId: string) => {
+    await Promise.all([
+      fetchPosts(),
+      fetchSuggestedUsers(userId),
+      fetchPendingCount(userId),
+    ]);
+    setLoading(false);
+  }, [fetchPosts, fetchSuggestedUsers, fetchPendingCount]);
+
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+      setCurrentUserId(session.user.id);
+
+      // Fetch user profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url, headline")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (profile) setUserProfile(profile);
+
+      fetchData(session.user.id);
+    };
+    checkAuth();
+  }, [navigate, fetchData]);
+
+  // Real-time subscription for new posts
+  React.useEffect(() => {
+    const channel = supabase
+      .channel("posts-feed")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "posts",
+        },
+        () => {
+          fetchPosts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchPosts]);
+
+
+
+
+
+
+
+
 
   const handleUpvote = async (postId: string) => {
     const { data: { session } } = await supabase.auth.getSession();

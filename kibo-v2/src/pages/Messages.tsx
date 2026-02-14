@@ -24,78 +24,37 @@ const Messages: React.FC = () => {
   // Get user from URL query params
   const targetUserId = searchParams.get("user");
 
-  React.useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      setCurrentUserId(session.user.id);
-      fetchConversations(session.user.id);
-    };
-    checkAuth();
-  }, [navigate]);
-
-  // Auto-select user from URL
-  React.useEffect(() => {
-    if (targetUserId && conversations.length > 0 && !selectedUser) {
-      const targetConversation = conversations.find(c => c.user_id === targetUserId);
-      if (targetConversation) {
-        setSelectedUser(targetConversation);
-      }
-    }
-  }, [targetUserId, conversations, selectedUser]);
-
-  React.useEffect(() => {
-    if (selectedUser) {
-      fetchMessages(selectedUser.user_id);
-      markAsRead(selectedUser.user_id);
-    }
-  }, [selectedUser]);
-
-  React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Real-time subscription for messages
-  React.useEffect(() => {
-    if (!currentUserId) return;
-
-    const channel = supabase
-      .channel("messages-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `receiver_id=eq.${currentUserId}`,
-        },
-        (payload) => {
-          const newMsg = payload.new as Message;
-          if (selectedUser && newMsg.sender_id === selectedUser.user_id) {
-            setMessages((prev) => [...prev, newMsg]);
-            markAsRead(selectedUser.user_id);
-            playSound("messageReceived");
-          } else {
-            // Message from someone not currently selected
-            playSound("messageReceived");
-          }
-          fetchConversations(currentUserId);
-        }
+  const fetchMessages = React.useCallback(async (partnerId: string) => {
+    const { data } = await supabase
+      .from("messages")
+      .select("*")
+      .or(
+        `and(sender_id.eq.${currentUserId},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${currentUserId})`
       )
-      .subscribe();
+      .order("created_at", { ascending: true });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [currentUserId, selectedUser]);
+    setMessages(data || []);
+  }, [currentUserId]);
 
-  const fetchConversations = async (userId: string) => {
+  const markAsRead = React.useCallback(async (partnerId: string) => {
+    await supabase
+      .from("messages")
+      .update({ is_read: true })
+      .eq("sender_id", partnerId)
+      .eq("receiver_id", currentUserId);
+
+    // Update local state
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.user_id === partnerId ? { ...c, unread_count: 0 } : c
+      )
+    );
+  }, [currentUserId]);
+
+  const fetchConversations = React.useCallback(async (userId: string) => {
     // Get all connected users
     const { data: connections } = await supabase
-      .from("connections")
+      .from("connections" as any) // eslint-disable-line @typescript-eslint/no-explicit-any
       .select("requester_id, receiver_id, updated_at")
       .eq("status", "connected")
       .or(`requester_id.eq.${userId},receiver_id.eq.${userId}`);
@@ -107,7 +66,8 @@ const Messages: React.FC = () => {
     }
 
     // Get partner IDs from connections
-    const partnerIds = connections.map((c) => 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const partnerIds = (connections as any[]).map((c) =>
       c.requester_id === userId ? c.receiver_id : c.requester_id
     );
 
@@ -120,7 +80,7 @@ const Messages: React.FC = () => {
 
     // Group messages by conversation partner
     const conversationMap = new Map<string, { lastMessage: Message | null; unreadCount: number }>();
-    
+
     // Initialize all connected users (even those without messages)
     partnerIds.forEach((partnerId) => {
       conversationMap.set(partnerId, { lastMessage: null, unreadCount: 0 });
@@ -129,7 +89,7 @@ const Messages: React.FC = () => {
     // Process messages
     messagesData?.forEach((msg) => {
       const partnerId = msg.sender_id === userId ? msg.receiver_id : msg.sender_id;
-      
+
       if (conversationMap.has(partnerId)) {
         const conv = conversationMap.get(partnerId)!;
         if (!conv.lastMessage) {
@@ -151,7 +111,8 @@ const Messages: React.FC = () => {
     const conversationsList: Conversation[] = partnerIds.map((partnerId) => {
       const conv = conversationMap.get(partnerId)!;
       const profile = profiles?.find((p) => p.user_id === partnerId);
-      const connection = connections.find((c) => 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const connection = (connections as any[]).find((c) =>
         c.requester_id === partnerId || c.receiver_id === partnerId
       );
 
@@ -172,7 +133,7 @@ const Messages: React.FC = () => {
       // New connections first
       if (a.is_new_connection && !b.is_new_connection) return -1;
       if (!a.is_new_connection && b.is_new_connection) return 1;
-      
+
       // Then by time
       const timeA = a.last_message_time ? new Date(a.last_message_time).getTime() : 0;
       const timeB = b.last_message_time ? new Date(b.last_message_time).getTime() : 0;
@@ -181,40 +142,13 @@ const Messages: React.FC = () => {
 
     setConversations(conversationsList);
     setLoading(false);
-  };
+  }, []);
 
-  const fetchMessages = async (partnerId: string) => {
-    const { data } = await supabase
-      .from("messages")
-      .select("*")
-      .or(
-        `and(sender_id.eq.${currentUserId},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${currentUserId})`
-      )
-      .order("created_at", { ascending: true });
-
-    setMessages(data || []);
-  };
-
-  const markAsRead = async (partnerId: string) => {
-    await supabase
-      .from("messages")
-      .update({ is_read: true })
-      .eq("sender_id", partnerId)
-      .eq("receiver_id", currentUserId);
-    
-    // Update local state
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.user_id === partnerId ? { ...c, unread_count: 0 } : c
-      )
-    );
-  };
-
-  const handleSendMessage = async () => {
+  const handleSendMessage = React.useCallback(async () => {
     if (!newMessage.trim() || !selectedUser) return;
 
     const messageContent = newMessage.trim();
-    
+
     // Clear input immediately
     setNewMessage("");
 
@@ -228,7 +162,7 @@ const Messages: React.FC = () => {
       created_at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimisticMessage]);
-    
+
     // Play send sound
     playSound("messageSent");
 
@@ -272,7 +206,77 @@ const Messages: React.FC = () => {
         from_user_id: currentUserId,
       });
     }
-  };
+  }, [newMessage, selectedUser, currentUserId, toast]);
+
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+      setCurrentUserId(session.user.id);
+      fetchConversations(session.user.id);
+    };
+    checkAuth();
+  }, [navigate, fetchConversations]);
+
+  // Auto-select user from URL
+  React.useEffect(() => {
+    if (targetUserId && conversations.length > 0 && !selectedUser) {
+      const targetConversation = conversations.find(c => c.user_id === targetUserId);
+      if (targetConversation) {
+        setSelectedUser(targetConversation);
+      }
+    }
+  }, [targetUserId, conversations, selectedUser]);
+
+  React.useEffect(() => {
+    if (selectedUser) {
+      fetchMessages(selectedUser.user_id);
+      markAsRead(selectedUser.user_id);
+    }
+  }, [selectedUser, fetchMessages, markAsRead]);
+
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Real-time subscription for messages
+  React.useEffect(() => {
+    if (!currentUserId) return;
+
+    const channel = supabase
+      .channel("messages-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `receiver_id=eq.${currentUserId}`,
+        },
+        (payload) => {
+          const newMsg = payload.new as Message;
+          if (selectedUser && newMsg.sender_id === selectedUser.user_id) {
+            setMessages((prev) => [...prev, newMsg]);
+            markAsRead(selectedUser.user_id);
+            playSound("messageReceived");
+          } else {
+            // Message from someone not currently selected
+            playSound("messageReceived");
+          }
+          fetchConversations(currentUserId);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId, selectedUser, fetchConversations, markAsRead]);
+
+
 
   if (loading) {
     return (

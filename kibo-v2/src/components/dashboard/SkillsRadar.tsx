@@ -41,7 +41,7 @@ export const SkillsRadar: React.FC<SkillsRadarProps> = ({ userId }) => {
         const topicCounts: Record<string, number> = {};
         const seenProblems = new Set<string>();
 
-        submissions.forEach((sub: any) => {
+        submissions.forEach((sub: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           if (!seenProblems.has(sub.problem_id)) {
             seenProblems.add(sub.problem_id);
             const topics = sub.coding_problems?.topic_tags || [];

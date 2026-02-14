@@ -41,7 +41,7 @@ export default function VerifyCertificate() {
                 for (const key of allKeys) {
                     const results = JSON.parse(localStorage.getItem(key) || "[]");
                     const match = results.find(
-                        (r: any) => r.certificate_id === certificateId
+                        (r: any) => r.certificate_id === certificateId // eslint-disable-line @typescript-eslint/no-explicit-any
                     );
                     if (match) {
                         setCertData({

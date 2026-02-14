@@ -206,8 +206,9 @@ const Profile: React.FC = () => {
 
       setEditForm({ ...editForm, avatar_url: data.publicUrl });
       toast({ title: "Success", description: "Image uploaded!" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setUploading(false);
     }

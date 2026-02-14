@@ -117,25 +117,54 @@ function Certifications() {
 
                     {/* Content */}
                     <div className="p-6 max-w-5xl mx-auto">
-                        {/* Hero Banner */}
+                        {/* Hero Banner - Premium Redesign */}
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mb-8 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/20 p-6"
+                            className="relative mb-8 overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-b from-amber-500/10 via-orange-500/5 to-transparent p-8 shadow-2xl shadow-amber-500/5"
                         >
-                            <div className="flex items-start gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-3xl shadow-lg">
-                                    🏆
+                            {/* Background Decorative Elements */}
+                            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
+                            <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-orange-600/10 blur-3xl" />
+
+                            <div className="relative flex flex-col md:flex-row items-start gap-6">
+                                {/* Premium Icon Container */}
+                                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-xl shadow-amber-500/20 ring-1 ring-white/20">
+                                    <Trophy className="h-10 w-10 text-white" strokeWidth={1.5} />
                                 </div>
-                                <div>
-                                    <h2 className="text-lg font-bold mb-1">
-                                        Kibo Professional Certifications
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                        Earn industry-recognized certifications calibrated to FAANG
-                                        screening standards. Each exam tests real-world coding
-                                        ability, debugging skills, and deep language knowledge.
+
+                                <div className="flex-1 space-y-3">
+                                    <div className="space-y-1">
+                                        <Badge
+                                            variant="outline"
+                                            className="border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 text-[10px] uppercase tracking-wider px-2 py-0.5"
+                                        >
+                                            Official Kibo Credentials
+                                        </Badge>
+                                        <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
+                                            Professional <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">Certifications</span>
+                                        </h2>
+                                    </div>
+
+                                    <p className="max-w-2xl text-base text-muted-foreground leading-relaxed">
+                                        Earn industry-recognized credentials calibrated to <span className="font-semibold text-foreground">FAANG screening standards</span>.
+                                        Each exam rigorously tests your real-world coding ability, system design skills, and deep language mastery.
                                     </p>
+
+                                    <div className="flex flex-wrap gap-4 pt-2 text-xs font-medium text-muted-foreground">
+                                        <div className="flex items-center gap-1.5">
+                                            <Shield className="h-4 w-4 text-emerald-500" />
+                                            <span>Fraud-Proof Verification</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <Code2 className="h-4 w-4 text-blue-500" />
+                                            <span>Live Coding Environment</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <Award className="h-4 w-4 text-purple-500" />
+                                            <span>Shareable on LinkedIn</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>

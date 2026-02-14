@@ -184,7 +184,7 @@ export const AssessmentMode: React.FC<AssessmentModeProps> = ({ assessment, onCo
   const [tabSwitchCount, setTabSwitchCount] = React.useState(0);
   const [pasteAttempts, setPasteAttempts] = React.useState(0);
 
-  const editorRef = React.useRef<any>(null);
+  const editorRef = React.useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   const currentProblem = PROBLEMS[currentQuestionIndex];
   // Get code for current question AND current language
@@ -315,7 +315,7 @@ export const AssessmentMode: React.FC<AssessmentModeProps> = ({ assessment, onCo
   const handleSubmit = async () => {
     setIsRunning(true);
 
-    let totalQuestions = PROBLEMS.length;
+    const totalQuestions = PROBLEMS.length;
     let passedQuestions = 0;
 
     // Re-validate all questions
