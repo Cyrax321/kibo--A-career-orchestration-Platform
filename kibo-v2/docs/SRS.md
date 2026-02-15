@@ -36,7 +36,7 @@ Kibo utilizes a modern, serverless-first architecture:
 ### 3.2 Dashboard & Mission Control
 *   **REQ-DASH-01:** System shall display real-time aggregation of total XP, streak count, and user level.
 *   **REQ-DASH-02:** System shall render a contribution graph ("The Garden") reflecting daily activity logs.
-*   **REQ-DASH-03:** Dashboard widgets must update via WebSocket subscription within 200ms of data change.
+*   **REQ-DASH-04:** Dashboard stats must feature a gamified, 3D-style HUD design (e.g., "Streak Fire", "Level Badges").
 
 ### 3.3 Application Tracking
 *   **REQ-APP-01:** Users shall be able to Create, Read, Update, and Delete (CRUD) job applications.
@@ -47,9 +47,12 @@ Kibo utilizes a modern, serverless-first architecture:
 *   **REQ-GAME-01:** Actions (Task completion, Problem solved) shall trigger an asynchronous SQL function to increment User XP.
 *   **REQ-GAME-02:** System shall calculate "Level" based on formula: `Level = floor(sqrt(XP / 100))`.
 *   **REQ-GAME-03:** Global leaderboard shall aggregate top 100 users by XP, refreshable via Realtime.
+*   **REQ-GAME-04:** Audio feedback system shall provide distinct, satisfying sounds for key interactions (e.g., "Duolingo-style" bubble pop for selection) while ensuring silence during coding tasks.
 
-## 4. Non-Functional Requirements
-
+### 3.5 Professional Certifications
+*   **REQ-CERT-01:** Certifications interface shall utilize a premium glassmorphism design with 3D iconography to signal value.
+*   **REQ-CERT-02:** Exam engine must support conditional audio cues (silent typing, audible submission).
+*   **REQ-CERT-03:** Certified users shall receive digital badges displayable on public profiles.
 ### 4.1 Performance
 *   **NFR-PERF-01:** Initial Content Paint (ICP) shall be under 1.5 seconds on 4G networks.
 *   **NFR-PERF-02:** Real-time updates shall propagate to connected clients within 500ms.
