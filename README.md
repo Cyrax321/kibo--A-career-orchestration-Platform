@@ -15,7 +15,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/build-passing-success?style=flat-square&color=00c805" alt="Build Status" />
-    <img src="https://img.shields.io/badge/version-1.0.0-blue?style=flat-square" alt="Version" />
+    <img src="https://img.shields.io/badge/version-5.0.0-blue?style=flat-square" alt="Version" />
     <img src="https://img.shields.io/badge/license-MIT-gray?style=flat-square" alt="License" />
     <img src="https://img.shields.io/badge/typescript-5.0-blue?style=flat-square&logo=typescript" alt="TypeScript" />
   </p>
