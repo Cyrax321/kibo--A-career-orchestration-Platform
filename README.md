@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/kibo-logo.svg" alt="Kibo Logo" width="120" height="auto" />
+  <img src="https://freeimage.host/i/qJmH8la" alt="Kibo Logo" width="120" height="auto" />
   <h1>Kibo</h1>
   <p>
     <strong>The Intelligent Career Orchestration Platform</strong>
