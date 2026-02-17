@@ -18,7 +18,7 @@ import CodePlayground from "@/components/arena/CodePlayground";
 import { SubmissionHistory } from "@/components/arena/SubmissionHistory";
 import { SubmissionHistoryFull } from "@/components/arena/SubmissionHistoryFull";
 import { CodeLabStats } from "@/components/arena/CodeLabStats";
-import { executeCode, runTestCases } from "@/lib/pistonExecutor";
+import { executeCode, runTestCases } from "@/lib/codeExecutor";
 
 interface Problem {
   id: string;

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Assessment } from "./types";
-import { runTestCases, TestCaseResult } from "@/lib/pistonExecutor";
+import { runTestCases, TestCaseResult } from "@/lib/codeExecutor";
 import { toast } from "sonner";
 
 interface AssessmentModeProps {

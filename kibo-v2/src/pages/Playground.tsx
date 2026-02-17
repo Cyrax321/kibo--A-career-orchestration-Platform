@@ -232,38 +232,23 @@ const Playground: React.FC = () => {
         setRuntime(null);
         setActiveTab("output");
 
-        const config = LANGUAGE_CONFIG[language];
         const startTime = Date.now();
 
         try {
-            const response = await fetch("https://emkc.org/api/v2/piston/execute", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    language: config.slug,
-                    version: config.version,
-                    files: [{ content: code }],
-                    stdin: stdin,
-                }),
-            });
-
-            const result = await response.json();
+            const { executeCode } = await import("@/lib/codeExecutor");
+            const result = await executeCode(code, language, stdin);
             const elapsed = Date.now() - startTime;
             setRuntime(elapsed);
 
-            if (result.run) {
-                const outputText = result.run.output || result.run.stderr || "";
-                if (result.run.code === 0) {
-                    setOutput(outputText ? outputText.split("\n") : ["Program finished with no output."]);
-                } else {
-                    setOutput([
-                        "[ERROR] Runtime Error",
-                        "",
-                        ...outputText.split("\n"),
-                    ]);
-                }
-            } else if (result.message) {
-                setOutput(["[ERROR] " + result.message]);
+            if (result.success) {
+                const outputText = result.output || "";
+                setOutput(outputText ? outputText.split("\n") : ["Program finished with no output."]);
+            } else {
+                setOutput([
+                    "[ERROR] " + (result.error || "Execution failed"),
+                    "",
+                    ...(result.output ? result.output.split("\n") : []),
+                ]);
             }
         } catch (error) {
             setOutput([`[ERROR] Network Error: ${error instanceof Error ? error.message : "Failed to execute"}`]);

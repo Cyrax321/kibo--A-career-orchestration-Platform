@@ -79,30 +79,15 @@ const CodePlayground: React.FC = () => {
     setOutput("");
     setIsError(false);
 
-    const config = LANGUAGE_CONFIG[language];
-
     try {
-      const response = await fetch("https://emkc.org/api/v2/piston/execute", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          language: config.slug,
-          version: config.version,
-          files: [{ content: code }],
-          stdin: stdin,
-        }),
-      });
+      const { executeCode } = await import("@/lib/codeExecutor");
+      const result = await executeCode(code, language, stdin);
 
-      const result = await response.json();
-
-      if (result.run) {
-        const outputText = result.run.output || result.run.stderr || "No output";
-        setOutput(outputText);
-        setIsError(result.run.code !== 0);
-      } else if (result.message) {
-        setOutput(`Error: ${result.message}`);
+      if (result.success) {
+        setOutput(result.output || "No output");
+        setIsError(false);
+      } else {
+        setOutput(result.error || result.output || "Execution failed");
         setIsError(true);
       }
     } catch (error) {

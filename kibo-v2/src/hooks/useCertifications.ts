@@ -18,7 +18,7 @@ import type {
     CodingFeedback,
     DebuggingFeedback,
 } from "@/components/certifications/types";
-import { executeCode } from "@/lib/pistonExecutor";
+import { executeCode } from "@/lib/codeExecutor";
 
 // ─── Client-side Exam Engine ────────────────────────────────────────────────
 // This is used for development / practice exams. In production, grading
