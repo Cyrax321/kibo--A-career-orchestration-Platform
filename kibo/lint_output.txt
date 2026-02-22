@@ -1,0 +1,82 @@
+
+> kibo-flow@1.0.0 lint
+> eslint .
+
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/assessments/AssessmentMode.tsx
+  209:6  warning  React Hook React.useEffect has a missing dependency: 'handleSubmit'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/certifications/ExamEngine.tsx
+  150:8  warning  React Hook React.useEffect has a missing dependency: 'handleSubmit'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/editor/plugins/block-selection-kit.tsx
+  28:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/editor/plugins/emoji-kit.tsx
+  10:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/editor/plugins/suggestion-kit.tsx
+  85:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/editor/settings-dialog.tsx
+  51:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/editor/use-chat.ts
+   51:37  error  The `{}` ("empty object") type allows any non-nullish value, including literals like `0` and `""`.
+- If that's what you want, disable this lint rule with an inline comment or configure the 'allowObjectTypes' rule option.
+- If you want a type meaning "any object", you probably want `object` instead.
+- If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
+   93:31  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  261:52  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/network/MyConnectionsManager.tsx
+  60:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/badge.tsx
+  29:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/block-selection.tsx
+  10:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/block-suggestion.tsx
+  250:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  474:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/button.tsx
+  56:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/comment.tsx
+  604:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/editor-static.tsx
+  10:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/font-color-toolbar-button.tsx
+    1:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+    3:1   error    Definition for rule 'react-hooks/refs' was not found                                                                            react-hooks/refs
+  397:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/form.tsx
+  129:10  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/navigation-menu.tsx
+  111:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/resize-handle.tsx
+  17:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/sidebar.tsx
+  636:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/sonner.tsx
+  28:19  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/toggle.tsx
+  37:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/cyrax8590gmail.com/Documents/projects/all kibo/versions feb/kibo v7/kibo/src/components/ui/turn-into-toolbar-button.tsx
+  43:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+✖ 27 problems (8 errors, 19 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+
