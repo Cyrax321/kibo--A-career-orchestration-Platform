@@ -14,6 +14,11 @@ const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
 dracoLoader.setDecoderConfig({ type: "js" });
 
+// Self-contained preload — starts when this chunk is imported (lazy)
+useLoader.preload(GLTFLoader, "/kibo-new.glb", (loader) => {
+  loader.setDRACOLoader(dracoLoader);
+});
+
 // GLB Model Loader Component
 const KiboGLBModel: React.FC<KiboModelProps> = ({ mousePosition }) => {
   const groupRef = React.useRef<THREE.Group>(null);

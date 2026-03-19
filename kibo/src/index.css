@@ -155,9 +155,9 @@
     @apply bg-background text-foreground antialiased;
   }
 
-  /* Smooth transitions for interactive elements */
+  /* Smooth transitions for interactive elements — colors only to avoid layout thrash */
   button, a, input, select, textarea {
-    @apply transition-all duration-200 ease-out;
+    @apply transition-colors duration-200 ease-out;
   }
 }
 
@@ -313,6 +313,39 @@
     100% {
       transform: translateX(0);
     }
+  }
+
+  /* GPU-accelerated float animations for hero cards (replaces Framer Motion repeat:Infinity) */
+  .animate-float {
+    animation: float 3.5s ease-in-out infinite;
+  }
+  .animate-float-slow {
+    animation: float 4s ease-in-out infinite;
+  }
+  .animate-float-reverse {
+    animation: float-reverse 5s ease-in-out infinite;
+  }
+  .animate-float-slow-alt {
+    animation: float 4.5s ease-in-out infinite 1s;
+  }
+  .animate-float-reverse-alt {
+    animation: float-reverse 5s ease-in-out infinite 0.8s;
+  }
+  .animate-pulse-subtle {
+    animation: pulse-subtle 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes float-reverse {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+  @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
   }
 
   /* Testimonial scroll animations - separate from ticker */

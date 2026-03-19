@@ -64,7 +64,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         transition: { duration: 0.25, ease: "easeOut" }
       }}
       className={cn(
-        "group relative rounded-3xl bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-sm border border-white/50 cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-white/60 will-change-transform",
+        "group relative rounded-3xl bg-gradient-to-br from-white to-white/90 border border-border/20 cursor-pointer overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:border-border/40 will-change-transform",
         isLarge ? "p-8 sm:p-10" : "p-6 sm:p-8",
         accent.shadow,
         className
@@ -76,15 +76,17 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         accent.gradient
       )} />
 
-      {/* Ambient glow for large cards */}
+      {/* Ambient glow for large cards — uses box-shadow instead of blur-3xl div */}
       {isLarge && (
         <div className={cn(
-          "absolute w-64 h-64 sm:w-80 sm:h-80 rounded-full blur-3xl transition-colors duration-600 pointer-events-none",
-          accent.glow,
-          category === "Core Feature"
-            ? "top-0 right-0 -translate-y-1/3 translate-x-1/3"
-            : "bottom-0 left-0 translate-y-1/3 -translate-x-1/3"
-        )} />
+          "absolute inset-0 rounded-3xl pointer-events-none opacity-40 transition-opacity duration-300 group-hover:opacity-60",
+        )} style={{
+          background: accentColor === 'primary'
+            ? 'radial-gradient(ellipse at top right, hsl(var(--primary) / 0.08), transparent 60%)'
+            : accentColor === 'success'
+            ? 'radial-gradient(ellipse at bottom left, hsl(var(--success) / 0.08), transparent 60%)'
+            : 'radial-gradient(ellipse at top right, hsl(var(--warning) / 0.08), transparent 60%)'
+        }} />
       )}
 
       <div className="relative z-10 h-full flex flex-col">

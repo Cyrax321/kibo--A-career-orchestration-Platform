@@ -4,12 +4,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import kiboLogo from "@/assets/kibo-logo.png";
 
-// Lazy load the 3D component
-const KiboMascot3D = React.lazy(() => 
-  import("@/components/kibo/KiboMascot3D").then(module => ({ 
-    default: module.KiboMascot3D 
-  }))
-);
+import kiboHero from "@/assets/kibo-hero.png";
 
 type KiboState = "idle" | "focus" | "victory" | "thinking";
 
@@ -63,13 +58,7 @@ const KiboCompanion: React.FC<KiboCompanionProps> = ({
               }}
               className="relative h-32 w-32 overflow-hidden rounded-2xl border border-white/20 bg-white/40 backdrop-blur-xl shadow-lg"
             >
-              <React.Suspense fallback={
-                <div className="flex h-full w-full items-center justify-center">
-                  <img src={kiboLogo} alt="Kibo" className="h-16 w-16 animate-pulse" />
-                </div>
-              }>
-                <KiboMascot3D className="w-full h-full" />
-              </React.Suspense>
+                <img src={kiboHero} alt="Kibo" className="w-full h-full object-contain p-2" draggable={false} />
 
               {/* State indicator */}
               <div className="absolute bottom-2 left-2 flex items-center gap-1.5">

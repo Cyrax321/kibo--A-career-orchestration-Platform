@@ -271,12 +271,10 @@ function ColorCustom({
   );
 }
 
-function ColorInput({
-  children,
-  className,
-  value = '#000000',
-  ...props
-}: React.ComponentProps<'input'>) {
+const ColorInput = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentPropsWithoutRef<'input'>
+>(({ children, className, value = '#000000', ...props }, ref) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   return (
@@ -295,14 +293,15 @@ function ColorInput({
       })}
       <input
         {...props}
-        ref={useComposedRef(props.ref as React.Ref<HTMLInputElement>, inputRef)}
+        ref={useComposedRef(ref, inputRef)}
         className={cn('size-0 overflow-hidden border-0 p-0', className)}
         value={value}
         type="color"
       />
     </div>
   );
-}
+});
+ColorInput.displayName = 'ColorInput';
 
 type TColor = {
   isBrightColor: boolean;

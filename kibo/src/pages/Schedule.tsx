@@ -27,9 +27,11 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
 import { UpcomingEvents } from "@/components/schedule/UpcomingEvents";
 import { QuickStats } from "@/components/schedule/QuickStats";
 import { EventDetailsPanel } from "@/components/schedule/EventDetailsPanel";
+import { GoogleCalendarButton } from "@/components/schedule/GoogleCalendarButton";
 
 interface ScheduleEvent {
   id: string;
@@ -38,6 +40,8 @@ interface ScheduleEvent {
   event_date: string;
   event_time: string | null;
   event_type: string;
+  google_event_id?: string | null;
+  sync_to_google?: boolean;
 }
 
 const EVENT_TYPES = [
@@ -65,6 +69,7 @@ const Schedule: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isSupported, isEnabled, requestPermission, sendNotification } = usePushNotifications();
+  const gcal = useGoogleCalendar();
 
   const [viewMode, setViewMode] = React.useState<"month" | "week">("month");
   const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -82,6 +87,7 @@ const Schedule: React.FC = () => {
     event_time: "",
     event_type: "reminder",
   });
+  const [syncToGoogle, setSyncToGoogle] = React.useState(false);
 
   const [notifiedEvents, setNotifiedEvents] = React.useState<Set<string>>(new Set());
 
@@ -203,17 +209,39 @@ const Schedule: React.FC = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      const createdEvent = data as unknown as ScheduleEvent;
       // Optimistic update - add to local state immediately
-      setEvents((prev) => [...prev, data as unknown as ScheduleEvent].sort((a, b) =>
+      setEvents((prev) => [...prev, createdEvent].sort((a, b) =>
         new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
       ));
       toast({ title: "Event Created", description: newEvent.title });
       setDialogOpen(false);
       setNewEvent({ title: "", description: "", event_date: "", event_time: "", event_type: "reminder" });
+
+      // Sync to Google Calendar (non-blocking — won't break if it fails)
+      if (gcal.connected) {
+        gcal.syncEvent({
+          event_id: createdEvent.id,
+          title: newEvent.title,
+          description: newEvent.description || null,
+          event_date: newEvent.event_date,
+          event_time: newEvent.event_time || null,
+          event_type: newEvent.event_type,
+        }).then((result) => {
+          if (result.synced) {
+            toast({ title: "Synced to Google Calendar" });
+          } else {
+            console.warn("[Schedule] Google sync failed:", result.error);
+            toast({ title: "Google sync failed", description: "Event was saved locally", variant: "destructive" });
+          }
+        });
+      }
     }
   };
 
   const handleDeleteEvent = async (id: string) => {
+    // Find the event before removing from state (need google_event_id)
+    const eventToDelete = events.find((e) => e.id === id);
     // Optimistic update - remove from local state immediately
     setEvents((prev) => prev.filter((e) => e.id !== id));
     setSelectedEvent(null);
@@ -226,6 +254,10 @@ const Schedule: React.FC = () => {
       fetchEvents();
     } else {
       toast({ title: "Event Deleted" });
+      // Delete from Google Calendar too (non-blocking)
+      if (eventToDelete?.google_event_id && gcal.connected) {
+        gcal.deleteGoogleEvent(eventToDelete.google_event_id);
+      }
     }
   };
 
@@ -236,6 +268,19 @@ const Schedule: React.FC = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Event Updated" });
+      // Sync update to Google Calendar (non-blocking)
+      const updatedEvent = events.find((e) => e.id === id);
+      if (updatedEvent?.google_event_id && gcal.connected) {
+        const merged = { ...updatedEvent, ...updates };
+        gcal.updateGoogleEvent({
+          google_event_id: updatedEvent.google_event_id,
+          title: merged.title,
+          description: merged.description || null,
+          event_date: merged.event_date,
+          event_time: merged.event_time || null,
+          event_type: merged.event_type,
+        });
+      }
     }
   };
 
@@ -311,7 +356,7 @@ const Schedule: React.FC = () => {
             <h1 className="text-2xl font-bold text-foreground">Schedule</h1>
             <p className="text-muted-foreground text-sm">Track interviews, deadlines, and contests</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Notifications Toggle */}
             {isSupported && (
               <Button
@@ -324,6 +369,14 @@ const Schedule: React.FC = () => {
                 {isEnabled ? "Notifications On" : "Enable Notifications"}
               </Button>
             )}
+
+            <GoogleCalendarButton
+              connected={gcal.connected}
+              googleEmail={gcal.googleEmail}
+              loading={gcal.loading}
+              onConnect={gcal.connect}
+              onDisconnect={gcal.disconnect}
+            />
 
             <Button variant="outline" size="icon" onClick={handleRefresh} disabled={isRefreshing}>
               <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
@@ -401,12 +454,30 @@ const Schedule: React.FC = () => {
                       rows={3}
                     />
                   </div>
+
+                  {/* Google Calendar sync toggle */}
+                  {gcal.connected && (
+                    <div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <CalendarIcon className="h-4 w-4 text-primary" />
+                        <Label htmlFor="sync-google" className="text-sm font-medium cursor-pointer">
+                          Sync to Google Calendar
+                        </Label>
+                      </div>
+                      <Switch
+                        id="sync-google"
+                        checked={syncToGoogle}
+                        onCheckedChange={setSyncToGoogle}
+                      />
+                    </div>
+                  )}
+
                   <Button
                     className="w-full"
                     onClick={handleAddEvent}
                     disabled={!newEvent.title || !newEvent.event_date}
                   >
-                    Add Event
+                    {gcal.syncing ? "Syncing..." : "Add Event"}
                   </Button>
                 </div>
               </DialogContent>

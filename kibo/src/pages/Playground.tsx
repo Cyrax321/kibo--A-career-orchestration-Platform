@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Play, Loader2, Terminal, FileCode2, ArrowLeft, RotateCcw, Copy, Check } from "lucide-react";
 import Editor from "@monaco-editor/react";
+import { configureMonaco } from "@/lib/monacoConfig";
+configureMonaco();
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

@@ -6,9 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import { Preloader } from "@/components/ui/Preloader";
-import { useLoader } from "@react-three/fiber";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -35,16 +32,7 @@ const ResultBreakdown = lazy(() => import("./components/certifications/ResultBre
 const VerifyCertificate = lazy(() => import("./components/certifications/VerifyCertificate"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// --- Asset Preloading for "Instant" Feel ---
-// Initialize Draco loader exactly as in the component
-const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
-dracoLoader.setDecoderConfig({ type: "js" });
 
-// Start fetching the 3D model immediately
-useLoader.preload(GLTFLoader, "/kibo-new.glb", (loader) => {
-  loader.setDRACOLoader(dracoLoader);
-});
 
 // Full screen loader (fallback for lazy chunks)
 const PageLoader = () => (
@@ -60,9 +48,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      {/* Global Preloader blocks view until 3D assets are ready */}
       <Preloader />
-
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>

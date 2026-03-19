@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNotes } from "@/hooks/useNotes";
 import type { Note, NoteShare } from "@/hooks/useNotes";
-import { PlateEditor } from "@/components/editor/plate-editor";
 
 const SharedNote = () => {
     const { shareToken } = useParams<{ shareToken: string }>();
@@ -130,9 +129,10 @@ const SharedNote = () => {
                 </div>
 
                 {/* Rendered content */}
-                <div className="note-editor mt-4">
-                    <PlateEditor content={note.content} readOnly />
-                </div>
+                <div
+                    className="note-editor note-editor-readonly prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: note.content }}
+                />
             </motion.main>
 
             {/* Footer */}

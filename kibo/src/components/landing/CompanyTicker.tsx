@@ -1,5 +1,4 @@
 import * as React from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Import logos
@@ -56,45 +55,43 @@ const CompanyTicker: React.FC<CompanyTickerProps> = ({ className }) => {
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-40 bg-gradient-to-r from-background via-background/80 to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-40 bg-gradient-to-l from-background via-background/80 to-transparent" />
 
-      {/* Row 1 - Scrolling left */}
+      {/* Row 1 - Scrolling left — plain divs with CSS hover, no motion.div or backdrop-blur */}
       <div className="mb-4 flex animate-scroll will-change-transform">
         {[...companiesRow1, ...companiesRow1, ...companiesRow1, ...companiesRow1].map((company, index) => (
-          <motion.div
+          <div
             key={`row1-${company.name}-${index}`}
-            whileHover={{ scale: 1.05, y: -4 }}
-            whileTap={{ scale: 0.98 }}
-            className="mx-3 flex min-w-fit items-center gap-3 rounded-xl bg-white/70 backdrop-blur-sm border border-white/30 px-6 py-3.5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:border-primary/20 cursor-pointer"
+            className="mx-3 flex min-w-fit items-center gap-3 rounded-xl bg-white border border-border/20 px-6 py-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/20 hover:-translate-y-1 cursor-pointer"
           >
             <img
               src={company.logo}
               alt={`${company.name} logo`}
               className="h-6 w-6 object-contain opacity-80"
+              loading="lazy"
             />
             <span className="text-sm font-medium text-foreground/80">
               {company.name}
             </span>
-          </motion.div>
+          </div>
         ))}
       </div>
 
       {/* Row 2 - Scrolling right (reverse) */}
       <div className="flex animate-scroll-reverse will-change-transform">
         {[...companiesRow2, ...companiesRow2, ...companiesRow2, ...companiesRow2].map((company, index) => (
-          <motion.div
+          <div
             key={`row2-${company.name}-${index}`}
-            whileHover={{ scale: 1.05, y: -4 }}
-            whileTap={{ scale: 0.98 }}
-            className="mx-3 flex min-w-fit items-center gap-3 rounded-xl bg-white/70 backdrop-blur-sm border border-white/30 px-6 py-3.5 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-md hover:border-primary/20 cursor-pointer"
+            className="mx-3 flex min-w-fit items-center gap-3 rounded-xl bg-white border border-border/20 px-6 py-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/20 hover:-translate-y-1 cursor-pointer"
           >
             <img
               src={company.logo}
               alt={`${company.name} logo`}
               className="h-6 w-6 object-contain opacity-80"
+              loading="lazy"
             />
             <span className="text-sm font-medium text-foreground/80">
               {company.name}
             </span>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>

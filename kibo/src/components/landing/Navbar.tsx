@@ -32,10 +32,20 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
   const [activeDropdown, setActiveDropdown] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const scrolled = window.scrollY > 20;
+        setIsScrolled((prev) => {
+          if (prev === scrolled) return prev; // bail — no re-render
+          return scrolled;
+        });
+        ticking = false;
+      });
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -66,12 +76,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
         <nav className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <motion.img
+            <img
               src={kiboLogo}
               alt="Kibo"
-              className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20 transition-transform group-hover:scale-105"
-              whileHover={{ rotate: [0, -5, 5, 0] }}
-              transition={{ duration: 0.4 }}
+              className="h-10 w-10 rounded-xl shadow-lg shadow-primary/20 transition-transform duration-300 group-hover:scale-105"
             />
             <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
               kibo

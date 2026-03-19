@@ -1,27 +1,30 @@
 import * as React from "react";
-import { useProgress } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import kiboLogo from "@/assets/kibo-logo.png";
 
 export const Preloader: React.FC = () => {
-    const { progress } = useProgress();
     const [complete, setComplete] = React.useState(false);
-    const [minTimeElapsed, setMinTimeElapsed] = React.useState(false);
+    const [progress, setProgress] = React.useState(0);
 
-    // Minimum "premium" load time to ensure smooth reveal (1.5s)
+    // Simulate a smooth loading progress over ~1.8s
     React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setMinTimeElapsed(true);
-        }, 1500);
-        return () => clearTimeout(timer);
+        const start = Date.now();
+        const duration = 1800; // ms
+
+        const tick = () => {
+            const elapsed = Date.now() - start;
+            const pct = Math.min(100, (elapsed / duration) * 100);
+            setProgress(pct);
+
+            if (pct < 100) {
+                requestAnimationFrame(tick);
+            } else {
+                setComplete(true);
+            }
+        };
+
+        requestAnimationFrame(tick);
     }, []);
-
-    // When both conditions are met (loaded + min time), trigger exit
-    React.useEffect(() => {
-        if (progress === 100 && minTimeElapsed) {
-            setComplete(true);
-        }
-    }, [progress, minTimeElapsed]);
 
     return (
         <AnimatePresence mode="wait">

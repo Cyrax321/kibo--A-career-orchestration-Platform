@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Code2, Play, Send, ChevronRight, Clock, CheckCircle2, XCircle, Tag, Building2, Gamepad2, FileCode2, History, Trophy, Target, BarChart3 } from "lucide-react";
 import Editor from "@monaco-editor/react";
+import { configureMonaco } from "@/lib/monacoConfig";
+configureMonaco();
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";

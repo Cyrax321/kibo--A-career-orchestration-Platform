@@ -7,27 +7,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils";
 import kiboLogo from "@/assets/kibo-logo.png";
 
-// Lazy load the 3D component with delayed mount
-const KiboMascot3D = React.lazy(() => 
-  import("@/components/kibo/KiboMascot3D").then(module => ({ 
-    default: module.KiboMascot3D 
-  }))
-);
+import kiboHero from "@/assets/kibo-hero.png";
 
 interface HeroSectionProps {
   className?: string;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
-  // Delay 3D component mount to prioritize text content
-  const [show3D, setShow3D] = React.useState(false);
-  
-  React.useEffect(() => {
-    // Wait for first paint + small delay to prioritize text
-    const timer = setTimeout(() => setShow3D(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <section
       className={cn(
@@ -47,9 +33,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
         }}
       />
 
-      {/* Gradient orbs */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-success/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+      {/* Gradient orbs — radial-gradient on a single div (zero paint layers, no blur) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(600px circle at top right, hsl(var(--primary) / 0.06), transparent 60%),
+            radial-gradient(400px circle at bottom left, hsl(var(--success) / 0.06), transparent 60%)
+          `,
+        }}
+      />
 
       <div className="container relative z-10 mx-auto flex min-h-screen items-center px-6 pt-20 pb-24 lg:px-12">
         <div className="grid w-full items-center gap-12 lg:grid-cols-2 lg:gap-16">
@@ -63,23 +56,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
               transition={{ duration: 0.5 }}
               className="mb-8"
             >
-              <motion.div 
-                className="relative inline-flex items-center gap-3"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              >
+              <div className="relative inline-flex items-center gap-3">
                 <img src={kiboLogo} alt="Kibo" className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-2xl shadow-lg" />
                 <span className="text-6xl sm:text-7xl lg:text-8xl font-black tracking-tighter bg-gradient-to-br from-primary via-primary to-primary/50 bg-clip-text text-transparent">
                   kibo
                 </span>
-                <motion.span 
-                  className="absolute -top-2 -right-4 text-sm font-bold text-primary/70"
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                >
-                  
-                </motion.span>
-              </motion.div>
+              </div>
             </motion.div>
             
             {/* Badge */}
@@ -194,7 +176,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
             </motion.div>
           </div>
 
-          {/* Right side - 3D Kibo Mascot */}
+          {/* Right side - Kibo Mascot */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -202,78 +184,44 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
             className="relative hidden lg:flex lg:items-center lg:justify-center"
           >
             <div className="relative w-full max-w-md aspect-square">
-              {/* Glow effect behind */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/15 via-primary/5 to-success/10 blur-3xl scale-110" />
+              {/* Glow — single radial-gradient, no blur element */}
+              <div
+                className="absolute inset-0 scale-110 rounded-full pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, hsl(var(--primary) / 0.1) 0%, hsl(var(--success) / 0.05) 50%, transparent 70%)',
+                }}
+              />
               
-              {/* 3D Canvas Container */}
-              <div className="relative w-full h-full">
-                {show3D ? (
-                  <React.Suspense fallback={
-                    <div className="w-full h-full flex items-center justify-center">
-                      <motion.div
-                        animate={{ scale: [1, 1.03, 1] }}
-                        transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                        className="h-28 w-28 rounded-3xl bg-white/90 backdrop-blur-md border border-white/50 shadow-xl flex items-center justify-center overflow-hidden"
-                      >
-                        <img src={kiboLogo} alt="Kibo" className="h-20 w-20" />
-                      </motion.div>
-                    </div>
-                  }>
-                    <KiboMascot3D className="w-full h-full" />
-                  </React.Suspense>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <motion.div
-                      animate={{ scale: [1, 1.03, 1] }}
-                      transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                      className="h-28 w-28 rounded-3xl bg-white/90 backdrop-blur-md border border-white/50 shadow-xl flex items-center justify-center overflow-hidden"
-                    >
-                      <img src={kiboLogo} alt="Kibo" className="h-20 w-20" />
-                    </motion.div>
-                  </div>
-                )}
+              {/* Kibo Mascot 2D Image — CSS animation for float, no FM per-frame JS */}
+              <div className="relative w-full h-full flex items-center justify-center">
+                <img
+                  src={kiboHero}
+                  alt="Kibo Mascot"
+                  className="w-full h-full object-contain animate-float will-change-transform"
+                  draggable={false}
+                />
               </div>
 
-              {/* Floating info cards - refined positioning */}
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="absolute top-4 left-0 w-32 rounded-xl bg-white/90 backdrop-blur-md border border-border/30 p-3 shadow-lg shadow-black/5"
-              >
+              {/* Floating info cards — CSS keyframes, solid bg (no backdrop-blur) */}
+              <div className="absolute top-4 left-0 w-32 rounded-xl bg-white border border-border/30 p-3 shadow-md animate-float-slow will-change-transform">
                 <div className="text-[11px] font-semibold text-foreground mb-1.5">Level 12</div>
                 <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: "75%" }}
-                    transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-                    className="h-full bg-primary rounded-full" 
-                  />
+                  <div className="h-full bg-primary rounded-full" style={{ width: '75%' }} />
                 </div>
                 <div className="text-[9px] text-muted-foreground mt-1">2,450 / 3,000 XP</div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.5 }}
-                className="absolute top-8 right-0 w-28 rounded-xl bg-white/90 backdrop-blur-md border border-border/30 p-3 shadow-lg shadow-black/5"
-              >
+              <div className="absolute top-8 right-0 w-28 rounded-xl bg-white border border-border/30 p-3 shadow-md animate-float-reverse will-change-transform">
                 <div className="text-lg font-bold text-success">247</div>
                 <div className="text-[9px] text-muted-foreground">problems solved</div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                animate={{ y: [0, -6, 0] }}
-                transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-16 -left-4 w-36 rounded-xl bg-white/90 backdrop-blur-md border border-border/30 p-3 shadow-lg shadow-black/5"
-              >
+              <div className="absolute bottom-16 -left-4 w-36 rounded-xl bg-white border border-border/30 p-3 shadow-md animate-float-slow-alt will-change-transform">
                 <div className="text-[11px] font-semibold text-foreground mb-1.5">12 Day Streak</div>
                 <div className="flex gap-1">
                   {[...Array(7)].map((_, i) => (
-                    <motion.div 
+                    <div 
                       key={i}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 1.2 + i * 0.05, type: "spring", stiffness: 300 }}
                       className={cn(
                         "h-2.5 w-2.5 rounded-sm",
                         i < 5 ? "bg-success" : "bg-muted"
@@ -281,16 +229,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
                     />
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.8 }}
-                className="absolute bottom-4 right-4 rounded-xl bg-gradient-to-br from-primary to-primary/85 p-3 shadow-lg shadow-primary/25"
-              >
+              <div className="absolute bottom-4 right-4 rounded-xl bg-gradient-to-br from-primary to-primary/85 p-3 shadow-md shadow-primary/15 animate-float-reverse-alt will-change-transform">
                 <div className="text-[11px] font-semibold text-primary-foreground">Applied: 24</div>
                 <div className="text-[10px] text-primary-foreground/75">Interviews: 8</div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
 
@@ -302,14 +246,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ className }) => {
               transition={{ delay: 0.5, duration: 0.6 }}
               className="relative w-56 h-56"
             >
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-success/10 blur-2xl" />
-              <div className="relative w-full h-full rounded-3xl bg-white/60 backdrop-blur-xl border border-white/40 flex items-center justify-center shadow-xl overflow-hidden">
-                <motion.div
-                  animate={{ scale: [1, 1.03, 1] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                >
-                  <img src={kiboLogo} alt="Kibo" className="h-32 w-32" />
-                </motion.div>
+              <div
+                className="absolute inset-0 rounded-full pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, hsl(var(--primary) / 0.08) 0%, hsl(var(--success) / 0.06) 50%, transparent 70%)',
+                }}
+              />
+              <div className="relative w-full h-full rounded-3xl bg-white/80 border border-white/40 flex items-center justify-center shadow-xl overflow-hidden">
+                <img src={kiboLogo} alt="Kibo" className="h-32 w-32 animate-pulse-subtle" />
               </div>
             </motion.div>
           </div>
